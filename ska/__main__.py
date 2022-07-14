@@ -20,7 +20,7 @@ import re
 
 from .__init__ import __version__
 
-import ska
+import ska_cpp
 
 def get_options():
     from docopt import docopt
@@ -46,6 +46,8 @@ def main():
     else:
         print("Option error!")
         sys.exit(1)
+
+    ska_cpp.run_ska(args["fasta"], args["kmer"])
 
     sys.exit(0)
 

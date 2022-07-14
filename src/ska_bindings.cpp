@@ -8,19 +8,17 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#include "ska.hpp"
+
 namespace py = pybind11;
 
-void align(const std::string& files) {
-  printf("align not yet implemented");
-  std::cerr << files << std::endl;
-}
-
-PYBIND11_MODULE(ska, m) {
+PYBIND11_MODULE(ska_cpp, m) {
   m.doc() = "SKA functions";
 
   // Exported functions
-  m.def("align", &align, "Align ska files",
-        py::arg("files"));
+  m.def("run_ska", &run_ska, "Runs ska fasta and align",
+        py::arg("fasta_strings"),
+        py::arg("kmer_length") = 7);
   // Example args
   /*
         py::arg("db_name"), py::arg("samples"), py::arg("files"),
@@ -33,3 +31,4 @@ PYBIND11_MODULE(ska, m) {
 
   m.attr("version") = VERSION_INFO;
 }
+

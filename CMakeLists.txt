@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.16)
-project(ska)
+project(ska_cpp)
 set(CMAKE_CXX_STANDARD 14)
 
 # Variable definitions
-set(TARGET_NAME ska)
+set(TARGET_NAME ska_cpp)
 add_compile_definitions(PYTHON_EXT)
 
 # gcc: Add openmp
@@ -44,7 +44,9 @@ find_package(pybind11 2.6 CONFIG REQUIRED)
 add_library("${TARGET_NAME}" MODULE)
 
 # Compile CPU library
-target_sources("${TARGET_NAME}" PRIVATE src/ska_bindings.cpp)
+target_sources("${TARGET_NAME}" PRIVATE
+    src/ska_align.cpp
+    src/ska_bindings.cpp)
 
 set_target_properties("${TARGET_NAME}" PROPERTIES
     CXX_VISIBILITY_PRESET "hidden"
