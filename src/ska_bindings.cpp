@@ -18,6 +18,7 @@ PYBIND11_MODULE(ska_cpp, m) {
   // Exported functions
   m.def("run_ska", &run_ska, "Runs ska fasta and align",
         py::arg("fasta_strings"),
+        py::arg("contig_count"),
         py::arg("kmer_length") = 7);
   // Example args
   /*

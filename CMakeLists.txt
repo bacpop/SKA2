@@ -45,7 +45,7 @@ add_library("${TARGET_NAME}" MODULE)
 
 # Compile CPU library
 target_sources("${TARGET_NAME}" PRIVATE
-    src/ska_align.cpp
+    src/ska_fasta.cpp
     src/ska_bindings.cpp)
 
 set_target_properties("${TARGET_NAME}" PROPERTIES
