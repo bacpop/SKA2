@@ -34,44 +34,26 @@ from .__init__ import __version__
 def main():
     args = docopt(__doc__, version = "ska version=" + __version__)
     # Create a database (sketch input)
-    with open("/Users/wachsmannj/Documents/test_SKA2/cluster_15.txt") as file:
+    paths, names = [], []
+    with open("/Users/wachsmannj/Documents/test_SKA2/cluster_15.txt", newline='\n') as file:
         lines = file.readlines()
-        lines = [line.rstrip() for line in lines]
+        for line in lines:
+            paths.append(line.split("\t")[1].rstrip())
+            names = [line.split("\t")[0].rstrip()]
 
     if args["--fasta"]:
         print("run ska fasta")
-        ska_cpp.run_ska(lines, 31)
+        ska_cpp.run_ska(paths, names, 31)
     elif args["--align"]:
         print("run ska align")
         # ska_cpp.ska_align(args["file-list"])
-        ska_cpp.ska_align(lines, 31)
+        # ska_cpp.ska_align(paths, names, 31)
     elif args["--map"]:
         print("run ska map")
         # ska_cpp.ska_map(args["file-list"])
     else:
         print("Option error!")
         sys.exit(1)
-
-    # # list with all the contigs of all the isolates
-    # seq_list = []
-    # # list telling how many contigs where in each isolates
-    # length_list = []
-    #
-    # # read in fasta files
-    # input_path = '/Users/wachsmannj/Documents/test_SKA2/'
-    # for file in os.listdir(input_path):
-    #     global_file = '/'.join([input_path, file])
-    #     count_records = 0
-    #     # if re.search('\.fa$|\.fasta', str(file).strip()):
-    #     if re.search('\.fasta$', str(file).strip()):
-    #         # with open(global_file) as fasta_sequence:
-    #         for record in SeqIO.parse(global_file, "fasta"):
-    #             # print(record.id, record.seq)
-    #             seq_list.append(str(record.seq))
-    #             count_records += 1
-    #         length_list.append(count_records)
-    # ska_cpp.run_ska(seq_list, length_list, 7)
-    # ska_cpp.run_ska(["ACTGAATC", "ACTCAATC", "ACTGAATC"], 7)
 
     sys.exit(0)
 

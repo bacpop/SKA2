@@ -16,7 +16,8 @@ PYBIND11_MODULE(ska_cpp, m) {
 
   // Exported functions
   m.def("run_ska", &run_ska, "Runs ska fasta",
-        py::arg("fasta_strings"),
+        py::arg("path_strings"),
+        py::arg("name_strings"),
         py::arg("kmer_length") = 7);
 
 //  m.def("run_ska_align", &run_ska_align, "Runs ska fasta and align",

@@ -5,6 +5,7 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include <chrono>
 #include "robin_hood.h"
 
 #include "ska.hpp"
@@ -44,7 +45,6 @@ for (auto& key: merge_dict)
         }
     }
 
-    //    std::cout << "---- The current k-mer is: " << key.first << std::endl;
     percentage = counter/kmer_dicts.size();
     // compare if current k-mer i aka all_keys[i] is in more than 50% of dictionaries of kmer_dicts
     // TODO: change percentage
@@ -55,7 +55,7 @@ for (auto& key: merge_dict)
         // create_bitvector_value(bases, kmer_dicts.size());
         all_kmers_dict[key.first] = bases;
         //const int end_substring = (kmerLength-1)/2;
-        //            std::cout << key.first.substr(0, end_substring) << "{" << bases[b] << "}" << key.first.substr(end_substring, kmerLength) << std::endl;
+        //std::cout << key.first.substr(0, end_substring) << "{" << bases[b] << "}" << key.first.substr(end_substring, kmerLength) << std::endl;
         }
     }
     //    else {
@@ -68,9 +68,7 @@ for (auto& key: merge_dict)
 return all_kmers_dict;
 }
 
-//int run_ska_align(const std::vector<std::string>& isolate_vector, const int kmerLength) {
+//int run_ska_align(const std::vector<std::string>& isolate_paths, const std::vector<std::string>& isolate_names, int kmerLength) {
 ////    std::cout << "ska_align.cpp" << std::endl;
 ////    vec_dict kmer_dicts;
-//
-//
 //}
