@@ -130,7 +130,7 @@ int run_ska(const std::vector<std::string>& isolate_paths, const std::vector<std
     all_dict = create_one_large_dictionary(kmer_dicts, kmerLength);
     std::cout << "size of all_dict: " << all_dict.size() << std::endl;
     std::ofstream outFile;
-    outFile.open("tests/variant_alignment.aln");
+    outFile.open("variant_alignment.aln");
 //// printing create_one_large_dictionary in parallel
     #pragma omp parallel for
     for (int isolate_num = 0; isolate_num < isolate_paths.size(); isolate_num++)

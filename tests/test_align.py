@@ -18,7 +18,7 @@ class MyTestCase(unittest.TestCase):
         ska_cpp.run_ska(paths, names, 3)
 
         ska_seqs = []
-        with open("tests/variant_alignment.aln") as fasta_sequences:
+        with open("variant_alignment.aln") as fasta_sequences:
             for fasta in SeqIO.parse(fasta_sequences, "fasta"):
                 sequence = str(fasta.seq)
                 ska_seqs.append(sequence)
