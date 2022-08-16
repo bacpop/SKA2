@@ -15,6 +15,8 @@ class MyTestCase(unittest.TestCase):
             for line in lines:
                 paths.append(line.split("\t")[1].rstrip())
                 names.append(line.split("\t")[0].rstrip())
+                print(paths)
+                print(names)
         ska_cpp.run_ska(paths, names, 3)
 
         ska_seqs = []
