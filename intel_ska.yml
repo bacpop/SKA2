@@ -6,54 +6,15 @@ channels:
   - defaults
   - r
 dependencies:
-  - biopython=1.79=py310h1961e1f_2
-  - bzip2=1.0.8=h0d85af4_4
-  - c-ares=1.18.1=hca72f7f_0
-  - ca-certificates=2022.6.15=h033912b_0
-  - cached-property=1.5.2=hd8ed1ab_1
-  - cached_property=1.5.2=pyha770c72_1
-  - cmake=3.22.1=hbfa4a85_0
-  - docopt=0.6.2=py310hecd8cb5_0
-  - expat=2.4.4=he9d5cce_0
-  - h5py=3.7.0=nompi_py310haa22bcd_100
-  - hdf5=1.12.1=nompi_h0aa1fa2_104
-  - krb5=1.19.3=hb98e516_0
-  - libblas=3.9.0=15_osx64_openblas
-  - libcblas=3.9.0=15_osx64_openblas
-  - libcurl=7.83.1=h23f1065_0
-  - libcxx=14.0.6=hce7ea42_0
-  - libedit=3.1.20210910=hca72f7f_0
-  - libev=4.33=h9ed2024_1
-  - libffi=3.4.2=h0d85af4_5
-  - libgfortran=5.0.0=9_3_0_h6c81a4c_23
-  - libgfortran5=9.3.0=h6c81a4c_23
-  - liblapack=3.9.0=15_osx64_openblas
-  - libnghttp2=1.47.0=hca56917_0
-  - libopenblas=0.3.20=openmp_hb3cd9ec_0
-  - libssh2=1.10.0=hd3787cc_2
-  - libuv=1.40.0=haf1e3a3_0
-  - libzlib=1.2.12=hfe4f2af_2
-  - llvm-openmp=14.0.4=ha654fa7_0
-  - lz4-c=1.9.3=h23ab428_1
-  - ncurses=6.3=h96cf925_1
-  - numpy=1.23.1=py310ha3f357c_0
-  - openssl=3.0.5=hfe4f2af_0
-  - pip=22.1.2=pyhd8ed1ab_0
-  - pybind11=2.9.2=py310h6be76da_1
-  - pybind11-global=2.9.2=py310h6be76da_1
-  - python=3.10.5=hdd68b96_0_cpython
-  - python_abi=3.10=2_cp310
-  - readline=8.1.2=h3899abd_0
-  - rhash=1.4.3=hac89ed1_0
-  - scipy=1.8.1=py310h70707f4_2
-  - setuptools=63.2.0=py310h2ec42d9_0
-  - sqlite=3.39.1=hd9f0692_0
-  - tk=8.6.12=h5dbffcc_0
-  - tzdata=2022a=h191b570_0
-  - wheel=0.37.1=pyhd8ed1ab_0
-  - xz=5.2.5=haf1e3a3_1
-  - zlib=1.2.12=hfe4f2af_2
-  - zstd=1.5.2=hcb37349_0
-  - pip:
-    - ska==2.0.0
-prefix: /Users/wachsmannj/opt/anaconda3/envs/intel_ska
+    - python
+    - pip
+    - numpy
+    - scipy
+    - docopt
+    - cmake >= 3.12
+    - pybind11
+    - zlib
+    - biopython
+    # osx
+    - llvm-openmp  # [osx]
+    - gfortran_impl_osx-64  # [osx]
