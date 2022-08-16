@@ -48,7 +48,7 @@ for (auto& key: merge_dict)
     percentage = counter/kmer_dicts.size();
     // compare if current k-mer i aka all_keys[i] is in more than 50% of dictionaries of kmer_dicts
     // TODO: change percentage
-    if (counter > 0 && percentage > .5)
+    if (counter > 0 && percentage > .6)
     {
         for (int b = 0; b < bases.size(); b++)
         {
