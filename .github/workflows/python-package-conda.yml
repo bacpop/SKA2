@@ -1,0 +1,30 @@
+name: Python Package using Conda
+
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.8]
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Add conda to system path
+      run: |
+        # $CONDA is an environment variable pointing to the root of the miniconda directory
+        echo $CONDA/bin >> $GITHUB_PATH
+    - name: Install dependencies
+      run: |
+        conda env update --file environment.yml --name base
+    - name: Install and run test_ska_align.py
+      run: |
+        PATH=$CONDA/bin/bin:$PATH
+        source $CONDA/bin/activate base
+        $CONDA/bin/python -m pip install --no-deps --ignore-installed .
+        cd tests && export SKA_PYTHON=$CONDA/bin/python && $CONDA/bin/python test_align.py
