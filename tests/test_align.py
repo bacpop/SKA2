@@ -10,7 +10,7 @@ class MyTestCase(unittest.TestCase):
 
     def test_ska_align(self):
         paths, names = [], []
-        with open("/Users/wachsmannj/Documents/SKA2/tests/10_test_cluster.txt", newline='\n') as file:
+        with open("10_test_cluster.txt", newline='\n') as file:
             lines = file.readlines()
             for line in lines:
                 paths.append(line.split("\t")[1].rstrip())
@@ -18,7 +18,7 @@ class MyTestCase(unittest.TestCase):
         ska_cpp.run_ska(paths, names, 3)
 
         ska_seqs = []
-        with open("/Users/wachsmannj/Documents/SKA2/tests/variant_alignment.aln") as fasta_sequences:
+        with open("tests/variant_alignment.aln") as fasta_sequences:
             for fasta in SeqIO.parse(fasta_sequences, "fasta"):
                 sequence = str(fasta.seq)
                 ska_seqs.append(sequence)

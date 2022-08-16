@@ -35,7 +35,7 @@ def main():
     args = docopt(__doc__, version = "ska version=" + __version__)
     # Create a database (sketch input)
     paths, names = [], []
-    with open("/Users/wachsmannj/Documents/SKA2/tests/100_test_cluster.txt", newline='\n') as file:
+    with open("tests/100_test_cluster.txt", newline='\n') as file:
         lines = file.readlines()
         for line in lines:
             paths.append(line.split("\t")[1].rstrip())
