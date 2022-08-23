@@ -13,14 +13,12 @@ Options:
 
 """
 
-
 import os, sys, re
 import ska_cpp
 from Bio import SeqIO
 from docopt import docopt
 
 from .__init__ import __version__
-#from __init__ import __version__
 
 
 # def get_options():
@@ -31,19 +29,25 @@ from .__init__ import __version__
 #
 #     return arguments
 
-def main():
-    args = docopt(__doc__, version = "ska version=" + __version__)
-    # Create a database (sketch input)
+
+def read_in_files(file_path):
     paths, names = [], []
-    with open("10_test_cluster.txt", newline='\n') as file:
+    with open(file_path, newline='\n') as file:
         lines = file.readlines()
         for line in lines:
             paths.append(line.split("\t")[1].rstrip())
             names.append(line.split("\t")[0].rstrip())
-    print("names", names)
+    return paths, names
+
+
+def main():
+    args = docopt(__doc__, version="ska version=" + __version__)
+
+    paths, names = read_in_files("/Users/wachsmannj/Documents/test_SKA2/cluster_15.txt")
 
     if args["--fasta"]:
-        print("run ska fasta")
+        # print("run ska fasta")
+        # for i in range (0, 10):
         ska_cpp.run_ska(paths, names, 31)
     elif args["--align"]:
         print("run ska align")

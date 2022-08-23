@@ -16,9 +16,11 @@ PYBIND11_MODULE(ska_cpp, m) {
 
   // Exported functions
   m.def("run_ska", &run_ska, "Runs ska fasta",
+
         py::arg("path_strings"),
         py::arg("name_strings"),
         py::arg("kmer_length") = 7);
+//TODO: https://pybind11.readthedocs.io/en/stable/faq.html#how-can-i-properly-handle-ctrl-c-in-long-running-functions
 
 //  m.def("run_ska_align", &run_ska_align, "Runs ska fasta and align",
 //        py::arg("fasta_strings"),

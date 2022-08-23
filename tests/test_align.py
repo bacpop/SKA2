@@ -2,21 +2,21 @@ import unittest
 import ska_cpp
 from Bio import SeqIO
 
+from ska.__main__ import read_in_files
+
 class MyTestCase(unittest.TestCase):
-    # def test_get_kmers(self):
-    #     isolate_path = "/Users/wachsmannj/Documents/SKA2/tests/100_1.fa"
-    #     ska.get_kmers(isolate_path, 31)
-    #     self.assertEqual()
 
     def test_ska_align(self):
-        paths, names = [], []
-        with open("10_test_cluster.txt", newline='\n') as file:
-            lines = file.readlines()
-            for line in lines:
-                paths.append(line.split("\t")[1].rstrip())
-                names.append(line.split("\t")[0].rstrip())
-                print(paths)
-                print(names)
+        # paths, names = [], []
+        # with open("10_test_cluster.txt", newline='\n') as file:
+        #     lines = file.readlines()
+        #     print(lines)
+        #     for line in lines:
+        #         paths.append(line.split("\t")[1].rstrip())
+        #         names.append(line.split("\t")[0].rstrip())
+        #         print(paths)
+        #         print(names)
+        paths, names = read_in_files("10_test_cluster.txt")
         ska_cpp.run_ska(paths, names, 3)
 
         ska_seqs = []
