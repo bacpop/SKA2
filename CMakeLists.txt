@@ -6,6 +6,9 @@ set(CMAKE_CXX_STANDARD 14)
 set(TARGET_NAME ska_cpp)
 add_compile_definitions(PYTHON_EXT)
 
+#set(CMAKE_OSX_ARCHITECTURES "arm64")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mcpu=apple-m1")
+
 # gcc: Add openmp
 IF(CMAKE_COMPILER_IS_GNUCC OR "$ENV{SKETCHLIB_INSTALL}" STREQUAL "conda")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
