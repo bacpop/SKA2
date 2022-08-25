@@ -236,56 +236,54 @@ vec_dict ska_fasta(const std::vector<std::string>& isolate_vector, const std::ve
     return kmer_dicts;
 }
 
-//void to_bitset(std::string& current_kmer, int& length) {
-//    uint64_t packed_int = 0;
-//    std::bitset<64> bitset{packed_int};
-//    // k = 31 max length
-//    // A = 00
-//    // C = 01
-//    // G = 10
-//    // T = 11
-//    for (auto it = current_kmer.cbegin(); it != current_kmer.cend(); ++it) {
-//        std::cout << "*it: " << *it << std::endl;
-//        switch (*it) {
-//            case 'A':
-//                bitset += 0; // optimise out
-//            case 'C':
-//                bitset += 1;
-//            case 'G':
-//                bitset += 2;
-//            case 'T':
-//                bitset += 3;
-//        }
-//        bitset << 2; // check this is the right direction, Yes!
-//    }
-//    std::cout << bitset << std::endl;
-//}
+void to_bitset(std::string& current_kmer, int& length) {
+    uint64_t packed_int = 0;
+    for (auto it = current_kmer.cbegin(); it != current_kmer.cend(); ++it) {
+        packed_int = packed_int << 2;
+        switch (*(it)) {
+            case 'A':
+                packed_int += 0; // optimise out
+                break;
+            case 'C':
+                packed_int += 1;
+                break;
+            case 'G':
+                packed_int += 2;
+                break;
+            case 'T':
+                packed_int += 3;
+                break;
+        }
+    }
+    std::bitset<8> x(packed_int);
+    std::cout << x << " and " << packed_int << std::endl;
+}
 
 
 int run_ska(const std::vector<std::string>& isolate_paths, const std::vector<std::string>& isolate_names, int kmerLength) {
 //   from sketchlib: https://github.com/bacpop/pp-sketchlib/blob/master/src/api.cpp
 
-    vec_dict kmer_dicts = ska_fasta(isolate_paths, isolate_names, kmerLength);
-    robin_hood::unordered_map<std::string, std::vector<char>> all_dict;
-    all_dict = create_one_large_dictionary(kmer_dicts, kmerLength);
-//    std::cout << "size of all_dict: " << all_dict.size() << std::endl;
-    std::ofstream outFile;
-    outFile.open("variant_alignment.aln");
-//// printing create_one_large_dictionary in parallel
-//    #pragma omp parallel for
-    for (int isolate_num = 0; isolate_num < isolate_paths.size(); isolate_num++)
-    {
-        outFile << ">" << isolate_names[isolate_num] << std::endl;
-        for (const auto& kmer: all_dict)
-        {
-            outFile << kmer.second[isolate_num];
-        }
-        outFile << "\n";
-    }
-    outFile.close();
-//    std::cout << "Done with alignment file!  " << std::endl;
-//    std::string current_kmer = "AGCTAGAT";
-//    to_bitset(current_kmer, kmerLength);
+//    vec_dict kmer_dicts = ska_fasta(isolate_paths, isolate_names, kmerLength);
+//    robin_hood::unordered_map<std::string, std::vector<char>> all_dict;
+//    all_dict = create_one_large_dictionary(kmer_dicts, kmerLength);
+////    std::cout << "size of all_dict: " << all_dict.size() << std::endl;
+//    std::ofstream outFile;
+//    outFile.open("variant_alignment.aln");
+////// printing create_one_large_dictionary in parallel
+////    #pragma omp parallel for
+//    for (int isolate_num = 0; isolate_num < isolate_paths.size(); isolate_num++)
+//    {
+//        outFile << ">" << isolate_names[isolate_num] << std::endl;
+//        for (const auto& kmer: all_dict)
+//        {
+//            outFile << kmer.second[isolate_num];
+//        }
+//        outFile << "\n";
+//    }
+//    outFile.close();
+    std::cout << "Done with alignment file!  " << std::endl;
+    std::string current_kmer = "ATTA";
+    to_bitset(current_kmer, kmerLength);
 
     return 0;
 }
