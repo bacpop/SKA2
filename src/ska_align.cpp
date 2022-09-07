@@ -48,12 +48,13 @@ for (auto& key: merge_dict)
     percentage = counter/kmer_dicts.size();
     // compare if current k-mer i aka all_keys[i] is in more than 50% of dictionaries of kmer_dicts
     // TODO: change percentage
+//     bitbases;
     if (counter > 0 && percentage > .6)
     {
         for (int b = 0; b < bases.size(); b++)
         {
-        // create_bitvector_value(bases, kmer_dicts.size());
-        all_kmers_dict[key.first] = bases;
+//            bit_bases = create_bitvector_value(bases, kmer_dicts.size());
+            all_kmers_dict[key.first] = bases;
         //const int end_substring = (kmerLength-1)/2;
         //std::cout << key.first.substr(0, end_substring) << "{" << bases[b] << "}" << key.first.substr(end_substring, kmerLength) << std::endl;
         }
@@ -72,3 +73,34 @@ return all_kmers_dict;
 ////    std::cout << "ska_align.cpp" << std::endl;
 ////    vec_dict kmer_dicts;
 //}
+std::vector<std::bitset<4>> create_bitvector_value(std::vector<char> bases) {
+    uint64_t packed_int = 0;
+    int base;
+    std::vector<std::bitset<4>> bitvector;
+    for (auto it = bases.cbegin(); it != bases.cend(); ++it) {
+        switch (*(it)) {
+            case 'A':
+                base = 8; // optimise out
+                break;
+            case 'C':
+                base = 4;
+                break;
+            case 'G':
+                base = 2;
+                break;
+            case 'T':
+                base = 1;
+                break;
+            case '-':
+                base = 0;
+                break;
+        }
+        std::bitset<4> x(base);
+        bitvector.push_back(x);
+    }
+
+    for (auto i: bitvector)
+        std::cout << i << ' ';
+    std::cout << "\n";
+    return bitvector;
+}

@@ -19,14 +19,11 @@ from Bio import SeqIO
 from docopt import docopt
 
 from .__init__ import __version__
-
-
 # def get_options():
 #     from docopt import docopt
 #     arguments = docopt(__doc__) #, version="ska version"+__version__)
 #     # arguments = docopt(__doc__, version="ska fasta" + ska_cpp.run_ska)
 #     # TODO Check options here
-#
 #     return arguments
 
 
@@ -48,7 +45,7 @@ def main():
     if args["--fasta"]:
         # print("run ska fasta")
         # for i in range (0, 10):
-        ska_cpp.run_ska(paths, names, 31)
+        ska_cpp.run_ska(paths, names, 3)
     elif args["--align"]:
         print("run ska align")
         # ska_cpp.ska_align(args["file-list"])
@@ -59,7 +56,6 @@ def main():
     else:
         print("Option error!")
         sys.exit(1)
-
     sys.exit(0)
 
 

@@ -13,4 +13,10 @@ int run_ska(const std::vector<std::string>& isolate_paths, const std::vector<std
 
 robin_hood::unordered_map<std::string, std::vector<char>> create_one_large_dictionary(vec_dict& kmer_dicts, int kmerLength);
 
+std::vector<std::bitset<4>> create_bitvector_value(std::vector<char> bases);
+
+//struct base4 {
+//    unsigned int uint_4base : 4;
+//};
+
 #endif
