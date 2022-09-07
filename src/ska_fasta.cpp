@@ -15,7 +15,6 @@
 #include <filesystem>
 #include <iostream>
 #include "progressbar.hpp"
-#include <bitset>
 #include <tuple>
 
 //using namespace boost::filesystem;
@@ -38,9 +37,9 @@ void ascii_bitstring(std::string & mybits){
 
 uint64_t ReverseComp64(const uint64_t mer, uint8_t kmerSize)
 {
-    std::string blub;
+//    std::string blub;
     uint64_t res = ~mer;
-    std::cout << "Res: " << res << " , Mer: " << mer << std::endl;
+//    std::cout << "Res: " << res << " , Mer: " << mer << std::endl;
 
     res = ((res >> 2 & 0x3333333333333333) | (res & 0x3333333333333333) << 2);
     res = ((res >> 4 & 0x0F0F0F0F0F0F0F0F) | (res & 0x0F0F0F0F0F0F0F0F) << 4);
@@ -48,9 +47,9 @@ uint64_t ReverseComp64(const uint64_t mer, uint8_t kmerSize)
     res = ((res >> 16 & 0x0000FFFF0000FFFF) | (res & 0x0000FFFF0000FFFF) << 16);
     res = ((res >> 32 & 0x00000000FFFFFFFF) | (res & 0x00000000FFFFFFFF) << 32);
 
-    blub = (res >> (2 * (32 - kmerSize)));
-    std::cout << (res >> (2 * (32 - kmerSize))) << ", " << blub << std::endl;
-    return (res >> (2 * (32 - kmerSize)));
+//    blub = (res >> (2 * (32 - kmerSize)));
+//    std::cout << (res >> (2 * (32 - kmerSize))) << ", " << blub << std::endl;
+    return (res >> (2ULL * (32 - kmerSize)));
 }
 
 robin_hood::unordered_map<std::string, char> old_kmer_approach(std::string sequence, int k, robin_hood::unordered_map<std::string, char> dict) {
@@ -68,7 +67,7 @@ robin_hood::unordered_map<std::string, char> old_kmer_approach(std::string seque
         current_kmer = sequence.substr(i1, n) + sequence.substr(i4, n);
         split_kmer_base = sequence[i3];
         dict[current_kmer] = split_kmer_base;
-        std::cout << current_kmer << ": " << split_kmer_base << std::endl;
+//        std::cout << current_kmer << ": " << split_kmer_base << std::endl;
         i3++;
         i4++;
     }
@@ -122,6 +121,18 @@ robin_hood::unordered_map<std::string, char> rolling_kmer_iterators(std::string 
     return dict;
 }
 
+//int rolling_kmer_bitvector(std::string sequence, int k, robin_hood::unordered_map<std::string, char> dict) {
+//    std::string current_kmer = sequence.substr(0, k);
+//    uint64_t bitstring = to_binary(current_kmer, k);
+//    char m =
+//    std::bitset<64> x(bitstring);
+//    dict[x] = m;
+//    for (int i = k; i < sequence.length(); i++) {
+//
+//    }
+//}
+
+
 int check_kmer_length(int length) {
     bool even = length % 2 == 0;
     bool max_length = length > 31;
@@ -163,8 +174,8 @@ vec_dict get_kmers(const std::vector< std::string>& fasta_path, const std::vecto
             int number_of_seqs = 0;
 //          TODO: change filesystem to boost
 //          boost::filesystem::exists(fasta_path[sample_idx]);
-            std::__fs::filesystem::path p(fasta_path[sample_idx]);
-            if (!std::__fs::filesystem::exists(p)) {
+            std::filesystem::path p(fasta_path[sample_idx]);
+            if (!std::filesystem::exists(p)) {
                 throw std::runtime_error("The given file does not exist!");
             }
             fp = gzopen(fasta_path[sample_idx].c_str(), "r");
@@ -176,7 +187,7 @@ vec_dict get_kmers(const std::vector< std::string>& fasta_path, const std::vecto
 //
 //                split_kmers = rolling_kmer_iterators(current_contig, kmer_length, split_kmers);
 //                split_kmers = rolling_kmer_extract(current_contig, kmer_length, split_kmers);
-//                split_kmers = old_kmer_approach(current_contig, kmer_length, split_kmers);
+                split_kmers = old_kmer_approach(current_contig, kmer_length, split_kmers);
 
                 if (split_kmers.size() == 0) {
                 #pragma omp critical
@@ -240,6 +251,7 @@ uint64_t to_binary(std::string& current_kmer, int& length) {
     for (auto it = current_kmer.cbegin(); it != current_kmer.cend(); ++it) {
         packed_int = packed_int << 2;
         switch (*(it)) {
+//            case 'a':
             case 'A':
                 packed_int += 0; // optimise out
                 break;
@@ -264,32 +276,32 @@ uint64_t to_binary(std::string& current_kmer, int& length) {
 int run_ska(const std::vector<std::string>& isolate_paths, const std::vector<std::string>& isolate_names, int kmerLength) {
 ////   from sketchlib: https://github.com/bacpop/pp-sketchlib/blob/master/src/api.cpp
 //
-    std::string s = "ACTGAATC";
-    std::cout << s << std::endl;
+//    std::string s = "ACTGAATC";
+//    std::cout << s << std::endl;
+//    std::vector<char> bases = {'A', 'C', 'G', 'T', '-'};
+//    create_bitvector_value(bases);
+//
+//    ReverseComp64(01320031, 8);
+//    robin_hood::unordered_map<std::string, char> kmer_dicts;
 
-    robin_hood::unordered_map<std::string, char> kmer_dicts;
-    std::vector<char> bases = {'A', 'C', 'G', 'T', '-'};
-    create_bitvector_value(bases);
-
-    ReverseComp64(01320031, 8);
-//    vec_dict kmer_dicts = ska_fasta(isolate_paths, isolate_names, kmerLength);
-//    robin_hood::unordered_map<std::string, std::vector<char>> all_dict;
-//    all_dict = create_one_large_dictionary(kmer_dicts, kmerLength);
-////    std::cout << "size of all_dict: " << all_dict.size() << std::endl;
-//    std::ofstream outFile;
-//    outFile.open("variant_alignment.aln");
-//// printing create_one_large_dictionary in parallel
-////    #pragma omp parallel for
-//    for (int isolate_num = 0; isolate_num < isolate_paths.size(); isolate_num++)
-//    {
-//        outFile << ">" << isolate_names[isolate_num] << std::endl;
-//        for (const auto& kmer: all_dict)
-//        {
-//            outFile << kmer.second[isolate_num];
-//        }
-//        outFile << "\n";
-//    }
-//    outFile.close();
+    vec_dict kmer_dicts = ska_fasta(isolate_paths, isolate_names, kmerLength);
+    robin_hood::unordered_map<std::string, std::vector<char>> all_dict;
+    all_dict = create_one_large_dictionary(kmer_dicts, kmerLength);
+//    std::cout << "size of all_dict: " << all_dict.size() << std::endl;
+    std::ofstream outFile;
+    outFile.open("variant_alignment.aln");
+// printing create_one_large_dictionary in parallel
+//    #pragma omp parallel for
+    for (int isolate_num = 0; isolate_num < isolate_paths.size(); isolate_num++)
+    {
+        outFile << ">" << isolate_names[isolate_num] << std::endl;
+        for (const auto& kmer: all_dict)
+        {
+            outFile << kmer.second[isolate_num];
+        }
+        outFile << "\n";
+    }
+    outFile.close();
 
 
 

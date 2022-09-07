@@ -45,7 +45,7 @@ def main():
     if args["--fasta"]:
         # print("run ska fasta")
         # for i in range (0, 10):
-        ska_cpp.run_ska(paths, names, 3)
+        ska_cpp.run_ska(paths, names, 31)
     elif args["--align"]:
         print("run ska align")
         # ska_cpp.ska_align(args["file-list"])

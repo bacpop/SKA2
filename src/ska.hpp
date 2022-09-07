@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <string>
+#include <bitset>
 #include "robin_hood.h"
 
 typedef std::vector<robin_hood::unordered_map<std::string, char>> vec_dict;
@@ -15,6 +16,7 @@ robin_hood::unordered_map<std::string, std::vector<char>> create_one_large_dicti
 
 std::vector<std::bitset<4>> create_bitvector_value(std::vector<char> bases);
 
+uint64_t to_binary(std::string& current_kmer, int& length);
 //struct base4 {
 //    unsigned int uint_4base : 4;
 //};

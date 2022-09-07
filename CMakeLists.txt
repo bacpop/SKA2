@@ -1,19 +1,19 @@
 cmake_minimum_required(VERSION 3.16)
 project(ska_cpp)
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 # Variable definitions
 set(TARGET_NAME ska_cpp)
 add_compile_definitions(PYTHON_EXT)
 
-#set(CMAKE_OSX_ARCHITECTURES "arm64")
+set(CMAKE_OSX_ARCHITECTURES "x86_64")
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mcpu=apple-m1")
 
 # gcc: Add openmp
 IF(CMAKE_COMPILER_IS_GNUCC OR "$ENV{SKETCHLIB_INSTALL}" STREQUAL "conda")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
 ENDIF()
-
+set(CMAKE_CXX_FLAGS_RELEASE "-O2 -g")
 # Add -O0 to remove optimizations when using debug
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0")
