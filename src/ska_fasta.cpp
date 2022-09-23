@@ -15,80 +15,93 @@
 #include <filesystem>
 #include <iostream>
 #include "progressbar.hpp"
-#include <tuple>
 
 //using namespace boost::filesystem;
 KSEQ_INIT(gzFile, gzread)
 
-// 64-bit random seeds corresponding to bases and their complements
-static const uint64_t seedA = 0x3c8bfbb395c60474;
-static const uint64_t seedC = 0x3193c18562a02b4c;
-static const uint64_t seedG = 0x20323ed082572324;
-static const uint64_t seedT = 0x295549f54be24456;
-static const uint64_t seedN = 0x0000000000000000;
+//// 64-bit random seeds corresponding to bases and their complements
+static const uint64_t seedA = 0b00;
+static const uint64_t seedC = 0b01;
+static const uint64_t seedG = 0b10;
+static const uint64_t seedT = 0b11;
+//static const uint64_t seedN = 0b100; // this won't be used
+
+static const uint64_t seedM = 0b0100;
+static const uint64_t seedR = 0b0101;
+static const uint64_t seedW = 0b0110;
+static const uint64_t seedS = 0b0111;
+static const uint64_t seedY = 0b1000;
+static const uint64_t seedK = 0b1001;
+static const uint64_t seedV = 0b1010;
+static const uint64_t seedH = 0b1011;
+static const uint64_t seedD = 0b1100;
+static const uint64_t seedB = 0b1101;
+static const uint64_t seedN = 0b1110;
+static const uint64_t seedX = 0b1111;
 
 static const uint64_t look_up_table[256] = {
-        seedN, seedT, seedN, seedG, seedA, seedA, seedN, seedC, // 0..7
-        seedN, seedN, seedN, seedN, seedN, seedN, seedN, seedN, // 8..15
-        seedN, seedN, seedN, seedN, seedN, seedN, seedN, seedN, // 16..23
-        seedN, seedN, seedN, seedN, seedN, seedN, seedN, seedN, // 24..31
-        seedN, seedN, seedN, seedN, seedN, seedN, seedN, seedN, // 32..39
-        seedN, seedN, seedN, seedN, seedN, seedN, seedN, seedN, // 40..47
-        seedN, seedN, seedN, seedN, seedN, seedN, seedN, seedN, // 48..55
-        seedN, seedN, seedN, seedN, seedN, seedN, seedN, seedN, // 56..63
-        seedN, seedA, seedN, seedC, seedN, seedN, seedN, seedG, // 64..71
-        seedN, seedN, seedN, seedN, seedN, seedN, seedN, seedN, // 72..79
-        seedN, seedN, seedN, seedN, seedT, seedT, seedN, seedN, // 80..87
-        seedN, seedN, seedN, seedN, seedN, seedN, seedN, seedN, // 88..95
-        seedN, seedA, seedN, seedC, seedN, seedN, seedN, seedG, // 96..103
-        seedN, seedN, seedN, seedN, seedN, seedN, seedN, seedN, // 104..111
-        seedN, seedN, seedN, seedN, seedT, seedT, seedN, seedN, // 112..119
-        seedN, seedN, seedN, seedN, seedN, seedN, seedN, seedN, // 120..127
-        seedN, seedN, seedN, seedN, seedN, seedN, seedN, seedN, // 128..135
-        seedN, seedN, seedN, seedN, seedN, seedN, seedN, seedN, // 136..143
-        seedN, seedN, seedN, seedN, seedN, seedN, seedN, seedN, // 144..151
-        seedN, seedN, seedN, seedN, seedN, seedN, seedN, seedN, // 152..159
-        seedN, seedN, seedN, seedN, seedN, seedN, seedN, seedN, // 160..167
-        seedN, seedN, seedN, seedN, seedN, seedN, seedN, seedN, // 168..175
-        seedN, seedN, seedN, seedN, seedN, seedN, seedN, seedN, // 176..183
-        seedN, seedN, seedN, seedN, seedN, seedN, seedN, seedN, // 184..191
-        seedN, seedN, seedN, seedN, seedN, seedN, seedN, seedN, // 192..199
-        seedN, seedN, seedN, seedN, seedN, seedN, seedN, seedN, // 200..207
-        seedN, seedN, seedN, seedN, seedN, seedN, seedN, seedN, // 208..215
-        seedN, seedN, seedN, seedN, seedN, seedN, seedN, seedN, // 216..223
-        seedN, seedN, seedN, seedN, seedN, seedN, seedN, seedN, // 224..231
-        seedN, seedN, seedN, seedN, seedN, seedN, seedN, seedN, // 232..239
-        seedN, seedN, seedN, seedN, seedN, seedN, seedN, seedN, // 240..247
-        seedN, seedN, seedN, seedN, seedN, seedN, seedN, seedN  // 248..255
+        seedX, seedT, seedX, seedG, seedA, seedA, seedX, seedC, // 0..7
+        seedX, seedX, seedX, seedX, seedX, seedX, seedX, seedX, // 8..15
+        seedX, seedX, seedX, seedX, seedX, seedX, seedX, seedX, // 16..23
+        seedX, seedX, seedX, seedX, seedX, seedX, seedX, seedX, // 24..31
+        seedX, seedX, seedX, seedX, seedX, seedX, seedX, seedX, // 32..39
+        seedX, seedX, seedX, seedX, seedX, seedX, seedX, seedX, // 40..47
+        seedX, seedX, seedX, seedX, seedX, seedX, seedX, seedX, // 48..55
+        seedX, seedX, seedX, seedX, seedX, seedX, seedX, seedX, // 56..63
+        seedX, seedA, seedB, seedC, seedD, seedX, seedX, seedG, // 64..71
+        seedH, seedX, seedX, seedK, seedX, seedM, seedN, seedX, // 72..79
+        seedX, seedX, seedR, seedS, seedT, seedT, seedV, seedW, // 80..87
+        seedX, seedY, seedX, seedX, seedX, seedX, seedX, seedX, // 88..95
+        seedX, seedA, seedB, seedC, seedD, seedX, seedX, seedG, // 96..103
+        seedH, seedX, seedX, seedK, seedX, seedM, seedN, seedX, // 104..111
+        seedX, seedX, seedR, seedS, seedT, seedT, seedV, seedW, // 112..119
+        seedX, seedY, seedX, seedX, seedX, seedX, seedX, seedX, // 120..127
+        seedX, seedX, seedX, seedX, seedX, seedX, seedX, seedX, // 128..135
+        seedX, seedX, seedX, seedX, seedX, seedX, seedX, seedX, // 136..143
+        seedX, seedX, seedX, seedX, seedX, seedX, seedX, seedX, // 144..151
+        seedX, seedX, seedX, seedX, seedX, seedX, seedX, seedX, // 152..159
+        seedX, seedX, seedX, seedX, seedX, seedX, seedX, seedX, // 160..167
+        seedX, seedX, seedX, seedX, seedX, seedX, seedX, seedX, // 168..175
+        seedX, seedX, seedX, seedX, seedX, seedX, seedX, seedX, // 176..183
+        seedX, seedX, seedX, seedX, seedX, seedX, seedX, seedX, // 184..191
+        seedX, seedX, seedX, seedX, seedX, seedX, seedX, seedX, // 192..199
+        seedX, seedX, seedX, seedX, seedX, seedX, seedX, seedX, // 200..207
+        seedX, seedX, seedX, seedX, seedX, seedX, seedX, seedX, // 208..215
+        seedX, seedX, seedX, seedX, seedX, seedX, seedX, seedX, // 216..223
+        seedX, seedX, seedX, seedX, seedX, seedX, seedX, seedX, // 224..231
+        seedX, seedX, seedX, seedX, seedX, seedX, seedX, seedX, // 232..239
+        seedX, seedX, seedX, seedX, seedX, seedX, seedX, seedX, // 240..247
+        seedX, seedX, seedX, seedX, seedX, seedX, seedX, seedX  // 248..255
 };
 
-uint64_t to_binary(std::string& current_kmer, int& length) {
+uint64_t to_binary(std::string& current_kmer, int length) {
     // convert k-mer to bitvector
     uint64_t packed_int = 0;
     for (auto it = current_kmer.cbegin(); it != current_kmer.cend(); ++it) {
         packed_int = packed_int << 2;
-        switch (*(it)) {
+        packed_int += look_up_table[*(it)];
+//        switch (*(it)) {
 //            case 'a':
-            case 'A':
-                packed_int += 0; // optimise out
-                break;
-            case 'C':
-                packed_int += 1;
-                break;
-            case 'G':
-                packed_int += 2;
-                break;
-            case 'T':
-                packed_int += 3;
-                break;
-        }
+//            case 'A':
+//                packed_int += 0; // optimise out
+//                break;
+//            case 'C':
+//                packed_int += 1;
+//                break;
+//            case 'G':
+//                packed_int += 2;
+//                break;
+//            case 'T':
+//                packed_int += 3;
+//                break;
+//        }
     }
     std::bitset<64> x(packed_int);
     std::cout << x << " and " << packed_int << std::endl;
     return packed_int;
 }
 
-// from Simon Hariss's original code
+//// from Simon Hariss's original code
 void ascii_bitstring(std::string & mybits){
     int myremainder=::fmod(int(mybits.length()),6);
     if (myremainder>0){
@@ -105,9 +118,7 @@ void ascii_bitstring(std::string & mybits){
 
 uint64_t ReverseComp64(const uint64_t mer, uint8_t kmerSize)
 {
-//    std::string blub;
     uint64_t res = ~mer;
-//    std::cout << "Res: " << res << " , Mer: " << mer << std::endl;
 
     res = ((res >> 2 & 0x3333333333333333) | (res & 0x3333333333333333) << 2);
     res = ((res >> 4 & 0x0F0F0F0F0F0F0F0F) | (res & 0x0F0F0F0F0F0F0F0F) << 4);
@@ -115,10 +126,30 @@ uint64_t ReverseComp64(const uint64_t mer, uint8_t kmerSize)
     res = ((res >> 16 & 0x0000FFFF0000FFFF) | (res & 0x0000FFFF0000FFFF) << 16);
     res = ((res >> 32 & 0x00000000FFFFFFFF) | (res & 0x00000000FFFFFFFF) << 32);
 
-//    blub = (res >> (2 * (32 - kmerSize)));
-//    std::cout << (res >> (2 * (32 - kmerSize))) << ", " << blub << std::endl;
-    return (res >> (2ULL * (32 - kmerSize)));
+    return(res >> (2ULL * (32 - kmerSize)));
+//    res = res >> (2ULL * (32 - kmerSize));
+//
+//    return ((res < mer) ? res : mer);
 }
+
+uint64_t ambiguous_bases[60] = {0b0, 0b0100, 0b0101, 0b0110,     //{{'A', 'M', 'R', 'W',},
+                                   0b0100, 0b01, 0b0111, 0b1000,    //{'M', 'C', 'S', 'Y',},
+                                   0b0101, 0b0111, 0b10, 0b1001,    //{'R', 'S', 'G', 'K',},
+                                   0b0110, 0b1000, 0b1001, 0b11,    //{'W', 'Y', 'K', 'T',},
+                                   0b0100, 0b0100, 0b1010, 0b1011,  //{'M', 'M', 'V', 'H',},
+                                   0b0101, 0b1010, 0b0101, 0b1100,  //{'R', 'V', 'R', 'D',},
+                                   0b0110, 0b1011, 0b1100, 0b0110,  //{'W', 'H', 'D', 'W',},
+                                   0b1010, 0b0111, 0b0111, 0b1101,  //{'V', 'S', 'S', 'B',},
+                                   0b1011, 0b1000, 0b1101, 0b1000,  //{'H', 'Y', 'B', 'Y',},
+                                   0b1100, 0b1101, 0b1001, 0b1001,  //{'D', 'B', 'K', 'K',},
+                                   0b1010, 0b1010, 0b1010, 0b1110, //{'V', 'V', 'V', 'N',},
+                                   0b1011, 0b1011, 0b1110, 0b1011, //{'H', 'H', 'N', 'H',},
+                                   0b1100, 0b1110, 0b1100, 0b1100, //{'D', 'N', 'D', 'D',},
+                                   0b1110, 0b1101, 0b1101, 0b1101, //{'N', 'B', 'B', 'B',},
+                                   0b1110, 0b1110, 0b1110, 0b1110};//{'N', 'N', 'N', 'N'}};
+
+
+
 
 robin_hood::unordered_map<std::string, char> old_kmer_approach(std::string sequence, int k, robin_hood::unordered_map<std::string, char> dict) {
     // initializing the iterators which are needed to create the kmers
@@ -188,43 +219,237 @@ robin_hood::unordered_map<std::string, char> rolling_kmer_iterators(std::string 
     }
     return dict;
 }
-// create look_up_table for char to binary
-int rolling_kmer_bitvector(std::string sequence, int k, robin_hood::unordered_map<std::string, char> dict_old) {
-//    TODO: TESTING!!!!!!!
-    robin_hood::unordered_map<std::bitset<64>, int> dict;
-    std::cout << "sequence: " << sequence << std::endl;
-    std::string split1 = sequence.substr(0, k/2);
-    std::string split2 = sequence.substr((k/2)+1, k/2);
 
-    std::cout << "split1: " << split1 << std::endl;
-    std::cout << "split2: " << split2 << std::endl;
-
-    int sub_kmer_length = k/2;
-    uint64_t b1 = to_binary(split1, sub_kmer_length);
-    uint64_t b2 = to_binary(split2, sub_kmer_length);
-
-    int m = look_up_table[sequence[k/2]]; //should be either 00,01,10,11
-
-    std::cout << "m: " << m << std::endl;
-
-    uint64_t bitstring = (b1 << k/2) | b2; //what format how to append uint64_t
-
-    std::cout << "bitstring: " << bitstring << std::endl;
-    std::bitset<64> x(bitstring);
-    std::cout << x << std::endl;
-// need to calculate reverse compliment and only return and save the smaller of the two
-    dict[x] = m;
-    for (int i = k; i < sequence.length(); i++) {
-        std::cout << "b1" << b1 << std::endl;
-        b1 = b1 << m;
-        m = sub_kmer_length-1 >> b2; // this won't work; figure out how to access first char or first two bits of b2
-        b2 = b2 << look_up_table[sequence[k/2]];
-        uint64_t bitstring = (b1 << k/2) | b2; //what format how to append uint64_t
-        std::bitset<64> x(bitstring);
-        std::cout << x << std::endl;
-        dict[x] = m;
+std::vector<int> check_for_N(std::string split, int pos){
+    std::vector<int> results(2);
+    for (int i = 0; i < split.length(); i++) {
+        // N found
+        if (split[i] == 'N'){
+            results[0] = 1;
+            // position of the N
+            results[1] = i + 1 + pos;
+            return results;
+        }
+        // N not found
+        else {
+            results[0] = 0;
+            results[1] = pos;
+        }
     }
+    return results;
 }
+
+
+
+//std::vector<uint64_t> convert_first_kmer(std::string& sequence, int start_pos, int k, robin_hood::unordered_map<uint64_t, uint64_t> dict){
+//    std::string split = sequence.substr(start_pos, k);
+//    int N = -1;
+//    int pos = 0;
+//    std::cout << "pos1 " << pos << std::endl;
+//
+//    std::cout << "check_for_N(split, N) " << check_for_N(split, N) << std::endl;
+//    N = check_for_N(split, N);
+//
+//    while (N >= 0 && pos < sequence.length() - k) {
+//
+//        pos = pos + N + 1;
+//        split = sequence.substr(pos, k/2);
+//        N = check_for_N(split, N);
+//
+//    }
+//
+//    std::cout << "pos3 " << pos << std::endl;
+//    split = sequence.substr(pos, k);
+//
+//    std::string split1 = split.substr(0, k/2);
+//    std::string split2 = split.substr(k/2 + 1, k/2);
+//
+//    std::cout << "split1: " << split1 << std::endl;
+//    std::cout << "split2: " << split2 << std::endl;
+//
+//
+//    uint64_t b1 = to_binary(split1, k/2);
+//    uint64_t b2 = to_binary(split2, k/2);
+//
+//
+//    uint64_t bitstring = (b1 << k/2) | b2;
+//
+//// need to calculate reverse compliment and only return and save the smaller of the two
+//    uint64_t smallest_canonical = ReverseComp64(bitstring, k);
+//
+//    if (smallest_canonical < bitstring) {
+//        m = ~m;
+//        uint64_t mask = 3;
+//        m = m & mask;
+//    }
+//    dict[smallest_canonical] = m;
+//
+//    std::vector<uint64_t> return_vector;
+//
+//    return_vector.push_back(b1);
+//    return_vector.push_back(b2);
+//    return_vector.push_back(smallest_canonical);
+//    return_vector.push_back(bitstring);
+//
+//    return return_vector;
+//}
+
+robin_hood::unordered_map<uint64_t, uint64_t> test_kmer(std::string& sequence, int k, robin_hood::unordered_map<uint64_t, uint64_t> dict) {
+    int pos = 0;
+    bool new_base_N = true;
+    uint64_t new_base;
+    uint8_t sub_kmer_length = k/2;
+    std::string current_kmer = sequence.substr(pos, k);
+    std::vector<int> check;
+    uint64_t b1;
+    uint64_t b2;
+    uint64_t m;
+    uint64_t smallest_canonical;
+
+//    std::string s = "NTNTAGAANGAGCN";
+    while (new_base_N && pos < sequence.length()) {
+        check = check_for_N(current_kmer, pos);
+        // no mpre Ns
+        if (check[0] == 0) {
+            pos = check[1]; //9
+            new_base = look_up_table[sequence[k + pos]] ;
+            new_base_N = false;
+            std::cout << "current_kmer: " << current_kmer << " pos: " << pos << std::endl;
+            // convert to binary
+            std::string split1 = current_kmer.substr(0, k/2);
+            std::string split2 = current_kmer.substr(k/2 + 1, k/2);
+
+            b1 = to_binary(split1, k/2);
+            b2 = to_binary(split2, k/2);
+
+            uint64_t bint = (b1 << k/2) | b2;
+
+            m = look_up_table[sequence[sub_kmer_length]];
+
+            smallest_canonical = ReverseComp64(bint, k);
+
+            if (smallest_canonical < bint) {
+                m = ~m;
+                uint64_t mask = 3;
+                m = m & mask;
+            }
+            // update value if kmer already existed
+            //key not present in dictionary
+            if (dict.find(smallest_canonical) == dict.end()) {
+                dict[smallest_canonical] = m;
+            }
+            else {
+                // calculate offset of position in vector
+                m = ambiguous_bases[(m * 15) + dict[smallest_canonical]];
+                dict[smallest_canonical] = m;
+            }
+        }
+            // more Ns
+        else {
+            pos = check[1];
+            current_kmer = sequence.substr(pos, k);
+            new_base_N = true;
+        }
+    }
+
+    new_base = look_up_table[sequence[k + pos]]; //should be either 00,01,10,11
+
+    for (int new_base_pos = pos; new_base_pos < sequence.size() - k; ++new_base_pos){
+        std::cout << "i: " << new_base_pos << std::endl;
+        std::cout << "new base: " << new_base << "=" << new_base_pos + k <<std::endl;
+        if(new_base == 4) {
+            new_base_N = true;
+//            std::cout << "N on position: " << new_base_pos + k << std::endl;
+            new_base_pos = new_base_pos + k + 1;
+//            std::cout << "new_base_pos1: " << new_base_pos << std::endl;
+            current_kmer = sequence.substr(new_base_pos, k);
+            while (new_base_N && new_base_pos < sequence.length()) {
+                check = check_for_N(current_kmer, new_base_pos);
+                // no mpre Ns
+                if (check[0] == 0) {
+                    new_base_pos = check[1];
+                    new_base = sequence[k + new_base_pos];
+                    new_base_N = false;
+                }
+                    // more Ns
+                else {
+                    new_base_pos = check[1];
+                    current_kmer = sequence.substr(new_base_pos, k);
+                    new_base_N = true;
+                }
+            }
+        }
+        else {
+            b1 = b1 << m;
+            m = sub_kmer_length-1 >> b2;
+            new_base = look_up_table[sequence[k + new_base_pos+1]];
+            b2 = b2 << new_base;
+            uint64_t bitstring = (b1 << k/2) | b2;
+            smallest_canonical = ReverseComp64(bitstring, k);
+            std::cout << "smallest_canonical: " << smallest_canonical << std::endl;
+            dict[smallest_canonical] = m;
+//            current_kmer = current_kmer.substr(1, k-1) + new_base;
+//            new_base = sequence[k + new_base_pos+1];
+        }
+        std::cout << "current_kmer: " << current_kmer << std::endl;
+
+    }
+    return dict;
+}
+
+
+// create look_up_table for char to binary
+//int rolling_kmer_bitvector(std::string& sequence, int k, robin_hood::unordered_map<uint64_t, uint64_t> dict, int pos) {
+////    TODO: TESTING!!!!!!!
+//
+//
+//
+////    std::vector<uint64_t> return_vector;
+////    std::vector<uint64_t> return_vector = convert_first_kmer(sequence, 0, k, dict);
+//    std::cout << "return vector: " << return_vector[0] << std::endl;
+//    uint8_t sub_kmer_length = k/2;
+//    uint64_t m = look_up_table[sequence[sub_kmer_length]]; //should be either 00,01,10,11
+//
+//
+//    uint64_t b1 = return_vector[0];
+//    uint64_t b2 = return_vector[1];
+//    uint64_t smallest_canonical = return_vector[2];
+//    uint64_t bitstring = return_vector[3];
+//
+//    // if N shift over and start over
+//    if (sequence[i] == 'N' or sequence[i] == 'n'){
+//        return_vector = convert_first_kmer(sequence, , k);
+//        std::cout << "return vector: " << return_vector[0] << std::endl;
+//        uint8_t sub_kmer_length = k/2;
+//        uint64_t m = look_up_table[sequence[sub_kmer_length]]; //should be either 00,01,10,11
+//
+//
+//        uint64_t b1 = return_vector[0];
+//        uint64_t b2 = return_vector[1];
+//        uint64_t smallest_canonical = return_vector[2];
+//        uint64_t bitstring = return_vector[3];
+//
+//        if (smallest_canonical < bitstring) {
+//            m = ~m;
+//            uint64_t mask = 3;
+//            m = m & mask;
+//        }
+//        dict[smallest_canonical] = m;
+//
+//    }
+//    else {
+//        for (int i = k; i < sequence.length(); i++) {
+//            b1 = b1 << m;
+//            m = sub_kmer_length-1 >> b2;
+//            b2 = b2 << look_up_table[sequence[i]];
+//            uint64_t bitstring = (b1 << k/2) | b2;
+//            smallest_canonical = ReverseComp64(bitstring, k);
+//            std::cout << "smallest_canonical: " << smallest_canonical << std::endl;
+//            dict[smallest_canonical] = m;
+//        }
+//    }
+//    return 0;
+//}
 
 
 int check_kmer_length(int length) {
@@ -241,12 +466,12 @@ int check_kmer_length(int length) {
 }
 
 //TODO: robin_hood::unordered_node_map better than robin_hood::unordered_map?
-vec_dict get_kmers(const std::vector< std::string>& fasta_path, const std::vector< std::string>& names, int kmer_length)
+vec_dict_bits get_kmers(const std::vector< std::string>& fasta_path, const std::vector< std::string>& names, int kmer_length)
 {
     progressbar bar1(fasta_path.size());
     std::cout << "Creating k-mer dictionary: " << std::endl;
     kmer_length = check_kmer_length(kmer_length);
-    vec_dict kmer_dicts;
+    vec_dict_bits kmer_dicts;
     kmer_dicts.resize(fasta_path.size());
 // read in fasta files with kseq.h
     auto start = std::chrono::steady_clock::now();
@@ -262,7 +487,7 @@ vec_dict get_kmers(const std::vector< std::string>& fasta_path, const std::vecto
             interrupt = true;
         } else {
             //#pragma omp critical
-            robin_hood::unordered_map<std::string, char> split_kmers;
+            robin_hood::unordered_map<uint64_t, uint64_t> split_kmers;
             gzFile fp;
             kseq_t *seq;
             int number_of_seqs = 0;
@@ -281,7 +506,8 @@ vec_dict get_kmers(const std::vector< std::string>& fasta_path, const std::vecto
 //
 //                split_kmers = rolling_kmer_iterators(current_contig, kmer_length, split_kmers);
 //                split_kmers = rolling_kmer_extract(current_contig, kmer_length, split_kmers);
-                split_kmers = old_kmer_approach(current_contig, kmer_length, split_kmers);
+                split_kmers = test_kmer(current_contig, kmer_length, split_kmers);
+//                split_kmers = rolling_kmer_bitvector(current_contig, kmer_length, split_kmers);
 
                 if (split_kmers.size() == 0) {
                 #pragma omp critical
@@ -300,8 +526,9 @@ vec_dict get_kmers(const std::vector< std::string>& fasta_path, const std::vecto
             for (const auto& x: split_kmers) {
                 bitstringstream << x.first << ":" << x.second;
             }
-            ascii_bitstring(bitstring);
-            current_kmer_file << bitstring;
+//            TODO: bitstring doesnt work anymore
+//            ascii_bitstring(bitstring);
+//            current_kmer_file << bitstring;
             current_kmer_file.close();
 
             if (!interrupt) {
@@ -332,9 +559,9 @@ vec_dict get_kmers(const std::vector< std::string>& fasta_path, const std::vecto
 }
 
 
-vec_dict ska_fasta(const std::vector<std::string>& isolate_vector, const std::vector<std::string>& isolate_names, int kmerLength) {
+vec_dict_bits ska_fasta(const std::vector<std::string>& isolate_vector, const std::vector<std::string>& isolate_names, int kmerLength) {
     // kmer_dicts is a vector of length n containing n dicts; each dict holds all the split k-mers of the current isolate
-    vec_dict kmer_dicts = get_kmers(isolate_vector, isolate_names, kmerLength);
+    vec_dict_bits kmer_dicts = get_kmers(isolate_vector, isolate_names, kmerLength);
     // TODO: pass kmer_dicts as reference to not copy everything over all the time
     return kmer_dicts;
 }
@@ -343,19 +570,30 @@ vec_dict ska_fasta(const std::vector<std::string>& isolate_vector, const std::ve
 
 int run_ska(const std::vector<std::string>& isolate_paths, const std::vector<std::string>& isolate_names, int kmerLength) {
 ////   from sketchlib: https://github.com/bacpop/pp-sketchlib/blob/master/src/api.cpp
-//
-    std::string s = "ACTGAATC";
-    std::cout << s << std::endl;
+    robin_hood::unordered_map<uint64_t, uint64_t> dict;
+//    std::string s = "NNNNNTNTAGAANNNGAGCN";
+//    std::cout << s << std::endl;
+//    test_kmer(s, kmerLength, dict);
 //    std::vector<char> bases = {'A', 'C', 'G', 'T', '-'};
 //    create_bitvector_value(bases);
+//    to_binary(s,kmerLength);
+//    uint8_t m = 0b01;
+//    m = ~m;
+//    m = m & 0b00000011;
+//    std::bitset<8> x(m);
+//    std::cout << "m: " << x << std::endl;
+
+//    uint64_t val1 = 0b0001111000001101;
+//    uint64_t smallest_canonical = ReverseComp64(val1, 8);
+//    std::cout << smallest_canonical << std::endl;
 //
-//    ReverseComp64(01320031, 8);
-    robin_hood::unordered_map<std::string, char> kmer_dicts;
+//    robin_hood::unordered_map<std::string, char> kmer_dicts;
+//
+//    robin_hood::unordered_map<uint64_t, uint8_t> bit_dicts;
+//    rolling_kmer_bitvector(s, kmerLength, bit_dicts);
 
-    rolling_kmer_bitvector(s, kmerLength, kmer_dicts);
 
-
-//    vec_dict kmer_dicts = ska_fasta(isolate_paths, isolate_names, kmerLength);
+    vec_dict_bits kmer_dicts = ska_fasta(isolate_paths, isolate_names, kmerLength);
 //    robin_hood::unordered_map<std::string, std::vector<char>> all_dict;
 //    all_dict = create_one_large_dictionary(kmer_dicts, kmerLength);
 ////    std::cout << "size of all_dict: " << all_dict.size() << std::endl;

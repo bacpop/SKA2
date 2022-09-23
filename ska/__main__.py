@@ -38,14 +38,16 @@ def read_in_files(file_path):
 
 
 def main():
+
+
     args = docopt(__doc__, version="ska version=" + __version__)
 
     paths, names = read_in_files("/Users/wachsmannj/Documents/test_SKA2/cluster_15.txt")
 
     if args["--fasta"]:
-        # print("run ska fasta")
+        print("run ska fasta")
         # for i in range (0, 10):
-        ska_cpp.run_ska(paths, names, 5)
+        ska_cpp.run_ska(paths, names, 31)
     elif args["--align"]:
         print("run ska align")
         # ska_cpp.ska_align(args["file-list"])

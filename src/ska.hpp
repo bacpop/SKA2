@@ -9,6 +9,7 @@
 #include "robin_hood.h"
 
 typedef std::vector<robin_hood::unordered_map<std::string, char>> vec_dict;
+typedef std::vector<robin_hood::unordered_map<uint64_t, uint64_t>> vec_dict_bits;
 
 int run_ska(const std::vector<std::string>& isolate_paths, const std::vector<std::string>& isolate_names,int kmerLength);
 
@@ -21,4 +22,7 @@ uint64_t to_binary(std::string& current_kmer, int& length);
 //    unsigned int uint_4base : 4;
 //};
 
+robin_hood::unordered_map<uint64_t, uint64_t> test_kmer(std::string& sequence, int k, robin_hood::unordered_map<uint64_t, uint64_t> dict);
+
+robin_hood::unordered_map<std::string, char> old_kmer_approach(std::string sequence, int k, robin_hood::unordered_map<std::string, char> dict);
 #endif
