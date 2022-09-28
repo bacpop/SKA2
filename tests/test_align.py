@@ -4,6 +4,7 @@ from Bio import SeqIO
 
 from ska.__main__ import read_in_files
 
+
 class MyTestCase(unittest.TestCase):
 
     def test_ska_align(self):

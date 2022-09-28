@@ -81,24 +81,8 @@ uint64_t to_binary(std::string& current_kmer, int length) {
     for (auto it = current_kmer.cbegin(); it != current_kmer.cend(); ++it) {
         packed_int = packed_int << 2;
         packed_int += look_up_table[*(it)];
-//        switch (*(it)) {
-//            case 'a':
-//            case 'A':
-//                packed_int += 0; // optimise out
-//                break;
-//            case 'C':
-//                packed_int += 1;
-//                break;
-//            case 'G':
-//                packed_int += 2;
-//                break;
-//            case 'T':
-//                packed_int += 3;
-//                break;
-//        }
     }
     std::bitset<64> x(packed_int);
-//    std::cout << x << " and " << packed_int << std::endl;
     return packed_int;
 }
 
@@ -131,6 +115,7 @@ uint64_t ReverseComp64(const uint64_t mer, uint8_t kmerSize)
 //    res = res >> (2ULL * (32 - kmerSize));
 //
 //    return ((res < mer) ? res : mer);
+// TODO: fix and return smallest one; and fix code further down
 }
 
 uint64_t ambiguous_bases_old[60] = {0b0, 0b0100, 0b0101, 0b0110,     //{{'A', 'M', 'R', 'W',},
@@ -200,7 +185,6 @@ robin_hood::unordered_map<std::string, char> old_kmer_approach(std::string seque
 //}
 
 robin_hood::unordered_map<std::string, char> rolling_kmer_iterators(std::string sequence, int k, robin_hood::unordered_map<std::string, char> dict) {
-//    std::cout << sequence << std::endl;
     std::string temp;
     std::string current_kmer;
     int i3 = (k - 1) / 2;
@@ -244,59 +228,6 @@ std::vector<int> check_for_N(std::string split, int pos){
 }
 
 
-
-//std::vector<uint64_t> convert_first_kmer(std::string& sequence, int start_pos, int k, robin_hood::unordered_map<uint64_t, uint64_t> dict){
-//    std::string split = sequence.substr(start_pos, k);
-//    int N = -1;
-//    int pos = 0;
-//    std::cout << "pos1 " << pos << std::endl;
-//
-//    std::cout << "check_for_N(split, N) " << check_for_N(split, N) << std::endl;
-//    N = check_for_N(split, N);
-//
-//    while (N >= 0 && pos < sequence.length() - k) {
-//
-//        pos = pos + N + 1;
-//        split = sequence.substr(pos, k/2);
-//        N = check_for_N(split, N);
-//
-//    }
-//
-//    std::cout << "pos3 " << pos << std::endl;
-//    split = sequence.substr(pos, k);
-//
-//    std::string split1 = split.substr(0, k/2);
-//    std::string split2 = split.substr(k/2 + 1, k/2);
-//
-//    std::cout << "split1: " << split1 << std::endl;
-//    std::cout << "split2: " << split2 << std::endl;
-//
-//
-//    uint64_t b1 = to_binary(split1, k/2);
-//    uint64_t b2 = to_binary(split2, k/2);
-//
-//
-//    uint64_t bitstring = (b1 << k/2) | b2;
-//
-//// need to calculate reverse compliment and only return and save the smaller of the two
-//    uint64_t smallest_canonical = ReverseComp64(bitstring, k);
-//
-//    if (smallest_canonical < bitstring) {
-//        m = ~m;
-//        uint64_t mask = 3;
-//        m = m & mask;
-//    }
-//    dict[smallest_canonical] = m;
-//
-//    std::vector<uint64_t> return_vector;
-//
-//    return_vector.push_back(b1);
-//    return_vector.push_back(b2);
-//    return_vector.push_back(smallest_canonical);
-//    return_vector.push_back(bitstring);
-//
-//    return return_vector;
-//}
 robin_hood::unordered_map<uint64_t, uint64_t> rolling_kmer_bitvector(std::string& sequence, int k, robin_hood::unordered_map<uint64_t, uint64_t> dict) {
 //std::unordered_map<uint64_t, uint64_t> rolling_kmer_bitvector(std::string& sequence, int k, std::unordered_map<uint64_t, uint64_t> dict) {
     uint64_t kmer_mask = 0;
@@ -317,7 +248,6 @@ robin_hood::unordered_map<uint64_t, uint64_t> rolling_kmer_bitvector(std::string
     uint64_t smallest_canonical;
     uint64_t mask = 3;
 
-//    std::string s = "NTNTAGAANGAGCN";
     while (new_base_N && pos < sequence.length()) {
         check = check_for_N(current_kmer, pos);
         // no mpre Ns
@@ -328,19 +258,15 @@ robin_hood::unordered_map<uint64_t, uint64_t> rolling_kmer_bitvector(std::string
             // convert to binary
             std::string split1 = current_kmer.substr(0, k/2);
             std::string split2 = current_kmer.substr(k/2 + 1, k/2);
-//            std::cout << "split1: " << split1 << std::endl;
-//            std::cout << "split2: " << split2 << std::endl;
 
             b1 = to_binary(split1, k/2);
             b2 = to_binary(split2, k/2);
-//            std::cout << "b1oben: " << b1 << std::endl;
-//            std::cout << "b2oben: " << b2 << std::endl;
+
             uint64_t bint = (b1 << ((k/2)+1)) | b2;
-//            std::cout << "bitstring1: " << bint << std::endl;
             m = look_up_table[sequence[sub_kmer_length]];
-//            std::cout << "m1: " << m << std::endl;
             smallest_canonical = ReverseComp64(bint, k-1);
             int64_t value = m;
+
             if (smallest_canonical < bint) {
                 value = ~m;
                 value = value & mask;
@@ -350,16 +276,14 @@ robin_hood::unordered_map<uint64_t, uint64_t> rolling_kmer_bitvector(std::string
             }
             // update value if kmer already existed
             //key not present in dictionary
+            uint8_t mid_val = static_cast<uint8_t>(value);
             if (dict.find(smallest_canonical) == dict.end()) {
                 dict[smallest_canonical] = value;
-//                std::cout << "smallest_canonical 1: " << smallest_canonical << " m: " << value << std::endl;
             }
             else {
                 // calculate offset of position in vector
                 int64_t value = ambiguous_bases[(m * 15) + dict[smallest_canonical]];
-//                std::cout << "m: " << value << std::endl;
                 dict[smallest_canonical] = value;
-//                std::cout << "smallest_canonical 2: " << smallest_canonical << " m: " << value << std::endl;
             }
         }
             // more Ns
@@ -371,31 +295,22 @@ robin_hood::unordered_map<uint64_t, uint64_t> rolling_kmer_bitvector(std::string
     }
 //TODO: does N still = 4 here??
     new_base = look_up_table[sequence[k + pos]]; //should be either 00,01,10,11
-//    std::cout << "new_base1: " << new_base << std::endl;
     for (int new_base_pos = pos; new_base_pos < sequence.size() - k + 1; ++new_base_pos){
-//        std::cout << "i: " << new_base_pos << " :" << sequence[k + new_base_pos] << std::endl;
         new_base = look_up_table[sequence[k + new_base_pos]];
-//        std::cout << "new base: " << new_base << "=" << new_base_pos + k <<std::endl;
 
         if(new_base == 14) {
             new_base_N = true;
-//            std::cout << "N on position: " << new_base_pos + k << std::endl;
             new_base_pos = new_base_pos + k + 1;
-//            std::cout << "new_base_pos1: " << new_base_pos << std::endl;
             current_kmer = sequence.substr(new_base_pos, k);
             while (new_base_N && new_base_pos < sequence.length()) {
                 check = check_for_N(current_kmer, new_base_pos);
                 // no mpre Ns
                 if (check[0] == 0) {
-//                    std::cout << "No more Ns here!" << std::endl;
                     new_base_pos = check[1]-1; //because of loop?
-//                    std::cout << "New base pos: " << new_base_pos << std::endl;
-//                    new_base = sequence[k + new_base_pos];
                     new_base_N = false;
                 }
                     // more Ns
                 else {
-//                    std::cout << "More Ns!" << std::endl;
                     new_base_pos = check[1];
                     current_kmer = sequence.substr(new_base_pos, k);
                     new_base_N = true;
@@ -403,27 +318,16 @@ robin_hood::unordered_map<uint64_t, uint64_t> rolling_kmer_bitvector(std::string
             }
         }
         else {
-//            std::cout << "current_kmer: " << current_kmer << std::endl;
-//            std::cout << "b1unten1: " << b1 << " und m: " << m <<  std::endl;
             b1 = b1 << 2;
             b1 += m;
             b1 = b1 & kmer_mask;
-//            std::cout << "b1unten2: " << b1 << std::endl;
-//            std::cout << "b2here: " << b2 << " : " << 64-((k/2)+1) << std::endl;
             m = b2 >> (((k/2)*2)-2); //does this work??
-//            std::cout << "m_new: " << m << std::endl;
-//            std::cout << "blublub: " << k + new_base_pos+1 << " " << sequence[k + new_base_pos] << " " <<  look_up_table[sequence[k + new_base_pos+1]] << std::endl;
             new_base = look_up_table[sequence[k + new_base_pos]];
-//            std::cout << "new_base: " << new_base << std::endl;
             b2 = b2 << 2;
-//            b2 = b2 - m; // take first base away??
             b2 += new_base;
             b2 = b2 & kmer_mask;
-//            std::cout << "b2unten: " << b2 << std::endl;
             uint64_t bitstring = (b1 << (k/2+1)) | b2;
-//            std::cout << "bitstring3: " << bitstring << std::endl;
             smallest_canonical = ReverseComp64(bitstring, k/2+1);
-//            std::cout << "smallest canonical: " << smallest_canonical << std::endl;
             int64_t value = m;
             if (smallest_canonical < bitstring) {
                 value = ~m;
@@ -436,81 +340,16 @@ robin_hood::unordered_map<uint64_t, uint64_t> rolling_kmer_bitvector(std::string
             //key not present in dictionary
             if (dict.find(smallest_canonical) == dict.end()) {
                 dict[smallest_canonical] = value;
-//                std::cout << "smallest_canonical 3: " << smallest_canonical << " m: " << value << std::endl;
             }
             else {
-//                std::cout << "dict[smallest_canonical] " <<  dict[smallest_canonical] << std::endl;
-//                std::cout << "m: " << m << std::endl;
                 // calculate offset of position in vector
-
                 int64_t value1 = ambiguous_bases[(value * 15) + dict[smallest_canonical]];
-//                std::cout << "value1: " << value1 << " & " << (value * 15) + dict[smallest_canonical] << std::endl;
-//                std::cout << "m: " << value << ", m: " << m << " & " << (m * 15) + dict[smallest_canonical] << std::endl;
                 dict[smallest_canonical] = value1;
-//                std::cout << "smallest_canonical 4: " << smallest_canonical << " m: " << m << std::endl;
             }
         }
     }
-//    for (const auto& kmer: dict)
-//    {
-//        std::cout << "kmer printing: " << kmer.first << ": " << kmer.second << std::endl;
-//    }
     return dict;
 }
-
-
-// create look_up_table for char to binary
-//int rolling_kmer_bitvector(std::string& sequence, int k, robin_hood::unordered_map<uint64_t, uint64_t> dict, int pos) {
-////    TODO: TESTING!!!!!!!
-//
-//
-//
-////    std::vector<uint64_t> return_vector;
-////    std::vector<uint64_t> return_vector = convert_first_kmer(sequence, 0, k, dict);
-//    std::cout << "return vector: " << return_vector[0] << std::endl;
-//    uint8_t sub_kmer_length = k/2;
-//    uint64_t m = look_up_table[sequence[sub_kmer_length]]; //should be either 00,01,10,11
-//
-//
-//    uint64_t b1 = return_vector[0];
-//    uint64_t b2 = return_vector[1];
-//    uint64_t smallest_canonical = return_vector[2];
-//    uint64_t bitstring = return_vector[3];
-//
-//    // if N shift over and start over
-//    if (sequence[i] == 'N' or sequence[i] == 'n'){
-//        return_vector = convert_first_kmer(sequence, , k);
-//        std::cout << "return vector: " << return_vector[0] << std::endl;
-//        uint8_t sub_kmer_length = k/2;
-//        uint64_t m = look_up_table[sequence[sub_kmer_length]]; //should be either 00,01,10,11
-//
-//
-//        uint64_t b1 = return_vector[0];
-//        uint64_t b2 = return_vector[1];
-//        uint64_t smallest_canonical = return_vector[2];
-//        uint64_t bitstring = return_vector[3];
-//
-//        if (smallest_canonical < bitstring) {
-//            m = ~m;
-//            uint64_t mask = 3;
-//            m = m & mask;
-//        }
-//        dict[smallest_canonical] = m;
-//
-//    }
-//    else {
-//        for (int i = k; i < sequence.length(); i++) {
-//            b1 = b1 << m;
-//            m = sub_kmer_length-1 >> b2;
-//            b2 = b2 << look_up_table[sequence[i]];
-//            uint64_t bitstring = (b1 << k/2) | b2;
-//            smallest_canonical = ReverseComp64(bitstring, k);
-//            std::cout << "smallest_canonical: " << smallest_canonical << std::endl;
-//            dict[smallest_canonical] = m;
-//        }
-//    }
-//    return 0;
-//}
 
 
 int check_kmer_length(int length) {
@@ -542,7 +381,7 @@ vec_dict_bits get_kmers(const std::vector< std::string>& fasta_path, const std::
     std::vector<std::runtime_error> errors;
 
 
-//#pragma omp parallel for // num_threads(2) // #pragma omp parallel is for paralyzing this loops
+#pragma omp parallel for // num_threads(2) // #pragma omp parallel is for paralyzing this loops
     for (int sample_idx = 0; sample_idx < fasta_path.size(); ++sample_idx) {
         #pragma omp critical
 //        bar1.update();
@@ -588,14 +427,12 @@ vec_dict_bits get_kmers(const std::vector< std::string>& fasta_path, const std::
 
 
             for (const auto& x: split_kmers) {
-//                std::cout << x.first;
-                bitstringstream << x.first << ":" << x.second;
+                bitstringstream << x.first << ":" << x.second << "\n";
 
             }
-            std::string bitstring = bitstringstream.str();
-//            TODO: bitstring doesnt work anymore
-            ascii_bitstring(bitstring);
-            current_kmer_file << bitstring;
+//            std::string bitstring = bitstringstream.str();
+//            ascii_bitstring(bitstring);
+            current_kmer_file << bitstringstream.str();
             current_kmer_file.close();
 
             if (!interrupt) {
@@ -622,7 +459,7 @@ vec_dict_bits get_kmers(const std::vector< std::string>& fasta_path, const std::
     std::chrono::duration<double> elapsed_seconds = end-start;
 //    std::cout << "elapsed time: " << elapsed_seconds.count() << "s\n";
     std::cout << elapsed_seconds.count() << std::endl;
-//    std::cout << "This is done! " << kmer_dicts.size() << std::endl;
+//    std::cout << "Got k-mers! " << std::endl;
     return kmer_dicts;
 }
 
@@ -642,90 +479,6 @@ vec_dict_bits ska_fasta(const std::vector<std::string>& isolate_vector, const st
 int run_ska(const std::vector<std::string>& isolate_paths, const std::vector<std::string>& isolate_names, int kmerLength) {
 ////   from sketchlib: https://github.com/bacpop/pp-sketchlib/blob/master/src/api.cpp
 
-//    rolling_kmer_extract()
-
-//    robin_hood::unordered_map<uint64_t, uint64_t> dict;
-//    std::unordered_map<uint64_t, uint64_t> dict;
-//    std::string s = "ACTGATCCNNNNCTT";
-//    std::string s = "ACTGCTA";
-//    std::string s = "TTTT";
-//    std::cout << "Let's start!" << std::endl;
-//    std::unordered_map<uint64_t, uint64_t> blabla;
-//    rolling_kmer_bitvector(s, kmerLength, dict);
-//    for (const auto& kmer: blabla)
-//        {
-//           std::cout << "kmer printing: " << kmer.first << ": " << kmer.second << std::endl;
-//        }
-//    std::vector<char> bases = {'A', 'C', 'G', 'T', '-'};
-//    create_bitvector_value(bases);
-
-//    uint8_t m = 0b01;
-//    m = ~m;
-//    m = m & 0b00000011;
-//    std::bitset<8> x(m);
-//    std::cout << "m: " << x << std::endl;
-
-//    uint64_t val1 = 0b0001111000001101;
-//    uint64_t smallest_canonical = ReverseComp64(val1, 8);
-//    std::cout << smallest_canonical << std::endl;
-//
-//    robin_hood::unordered_map<std::string, char> kmer_dicts;
-//
-//    robin_hood::unordered_map<uint64_t, uint8_t> bit_dicts;
-//    rolling_kmer_bitvector(s, kmerLength, bit_dicts);
-
-//run this:
     vec_dict_bits kmer_dicts = ska_fasta(isolate_paths, isolate_names, kmerLength);
-
-
-//    robin_hood::unordered_map<std::string, std::vector<char>> all_dict;
-//    all_dict = create_one_large_dictionary(kmer_dicts, kmerLength);
-////    std::cout << "size of all_dict: " << all_dict.size() << std::endl;
-//    std::ofstream outFile;
-//    outFile.open("variant_alignment.aln");
-//// printing create_one_large_dictionary in parallel
-////    #pragma omp parallel for
-//    for (int isolate_num = 0; isolate_num < isolate_paths.size(); isolate_num++)
-//    {
-//        outFile << ">" << isolate_names[isolate_num] << std::endl;
-//        for (const auto& kmer: all_dict)
-//        {
-//            outFile << kmer.second[isolate_num];
-//        }
-//        outFile << "\n";
-//    }
-//    outFile.close();
-//
-//
-//
-//
-//
-//
-//
-////    for (int i1 = 0; i1 <= s.length() - kmerLength; i1++) {
-//////          TODO: rolling k-mers
-////
-////        int i3 = (kmerLength - 1) / 2;
-//////              int i2 = i3 - 1;
-////        int i4 = i3 + 1;
-//////              int i5 = kmer_length - 1;
-////        int n = (kmerLength - 1) / 2;
-////        char split_kmer_base;
-////        std::string current_kmer = s.substr(i1, n) + s.substr(i4, n);
-////        std::string temp = "";
-////    }
-//
-//
-//
-//
-//
-//
-////        current_kmer = s.substr(i1, n) + s.substr(i4, n);
-////        split_kmer_base = s[i3];
-//////        split_kmers[current_kmer] = split_kmer_base;
-////        i3++;
-////        i4++;
-////        std::cout << current_kmer << std::endl;
-////    }
     return 0;
 }
