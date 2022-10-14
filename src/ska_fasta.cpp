@@ -15,7 +15,9 @@
 #include <filesystem>
 #include <iostream>
 #include <cmath>
+#include <cereal/archives/binary.hpp>
 #include "progressbar.hpp"
+#include "cereal/include/cereal/archives/binary.hpp"
 
 //using namespace boost::filesystem;
 KSEQ_INIT(gzFile, gzread)
@@ -406,7 +408,8 @@ vec_dict_bits get_kmers(const std::vector< std::string>& fasta_path, const std::
             while ((kseq_read(seq)) >= 0) {
                 std::string current_contig = seq->seq.s;
                 ++number_of_seqs;
-//
+//              TODO: is contig dict updated or is dict only for contigs???
+
 //                split_kmers = rolling_kmer_iterators(current_contig, kmer_length, split_kmers);
 //                split_kmers = rolling_kmer_extract(current_contig, kmer_length, split_kmers);
 //                split_kmers = rolling_kmer_extract(current_contig, kmer_length, split_kmers);
@@ -420,20 +423,28 @@ vec_dict_bits get_kmers(const std::vector< std::string>& fasta_path, const std::
                     }
                 }
             }
-            // print k-mer dict to file:
-            std::ofstream current_kmer_file;
-            current_kmer_file.open(names[sample_idx] + ".skf");
-            std::stringstream bitstringstream;
 
+            // creating output file
+            std::ofstream os(names[sample_idx] + ".skf", std::ios::binary);
+            // creating archive
 
-            for (const auto& x: split_kmers) {
-                bitstringstream << x.first << ":" << x.second << "\n";
+            cereal::BinaryOutputArchive oarchive(os);
 
-            }
-//            std::string bitstring = bitstringstream.str();
-//            ascii_bitstring(bitstring);
-            current_kmer_file << bitstringstream.str();
-            current_kmer_file.close();
+            MyBase cereal_split_kmers;
+            cereal_split_kmers.cereal_dict = split_kmers;
+            oarchive(cereal_split_kmers);
+//            {
+//                cereal::BinaryInputArchive iarchive(os);
+//                cereal_class getting_back;
+//                getting_back.cereal_dict;
+//                iarchive(getting_back);
+//            }
+
+//                out_dict = getting_back;
+//            }
+//            for (const auto& iterator: out_dict) {
+//                std::cout << iterator.first << ": " << iterator.second << std::endl;
+//            }
 
             if (!interrupt) {
                 // TODO: use std::move here rather than copy?
@@ -463,6 +474,14 @@ vec_dict_bits get_kmers(const std::vector< std::string>& fasta_path, const std::
     return kmer_dicts;
 }
 
+//TODO: map instead of unordered map
+std::unordered_map<uint64_t, uint64_t> change_type(robin_hood::unordered_map<uint64_t, uint64_t> rh_dict) {
+    std::unordered_map<uint64_t, uint64_t> basic_map;
+    for (const auto& x: rh_dict) {
+         basic_map[x.first] = x.second;
+    }
+    return basic_map;
+}
 
 vec_dict_bits ska_fasta(const std::vector<std::string>& isolate_vector, const std::vector<std::string>& isolate_names, int kmerLength) {
 //std::vector<std::unordered_map<uint64_t, uint64_t>> ska_fasta(const std::vector<std::string>& isolate_vector, const std::vector<std::string>& isolate_names, int kmerLength) {

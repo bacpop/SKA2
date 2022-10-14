@@ -8,6 +8,8 @@
 #include <bitset>
 #include <unordered_map>
 #include "robin_hood.h"
+#include "robin_hood_cereal.h"
+
 
 typedef std::vector<robin_hood::unordered_map<std::string, char>> vec_dict;
 typedef std::vector<robin_hood::unordered_map<uint64_t, uint64_t>> vec_dict_bits;
@@ -31,4 +33,30 @@ std::vector<int> check_for_N(std::string split, int pos);
 vec_dict_bits get_kmers(const std::vector< std::string>& fasta_path, const std::vector< std::string>& names, int kmer_length);
 
 //std::vector<std::unordered_map<uint64_t, uint64_t>> get_kmers(const std::vector< std::string>& fasta_path, const std::vector< std::string>& names, int kmer_length);
+
+// cereal needs to know which data members to serialize in your classes. Let it know by implementing a serialize method in your class
+
+struct MyBase
+{
+    robin_hood::unordered_map<uint64_t, uint64_t> cereal_dict;
+
+    template <class Archive>
+    void serialize( Archive & ar )
+    {
+        ar(cereal_dict);
+    }
+};
+
+struct MyDerived : MyBase
+{
+    template <class Archive>
+    void load( Archive & )
+    { }
+
+    template <class Archive>
+    void save( Archive & ) const
+    { }
+};
+
+
 #endif
