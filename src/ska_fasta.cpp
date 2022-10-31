@@ -280,12 +280,14 @@ robin_hood::unordered_map<uint64_t, uint64_t> rolling_kmer_bitvector(std::string
             //key not present in dictionary
             uint8_t mid_val = static_cast<uint8_t>(value);
             if (dict.find(smallest_canonical) == dict.end()) {
-                dict[smallest_canonical] = value;
+                uint8_t u8_value1 = value;
+                dict[smallest_canonical] = u8_value1;
             }
             else {
                 // calculate offset of position in vector
-                int64_t value = ambiguous_bases[(m * 15) + dict[smallest_canonical]];
-                dict[smallest_canonical] = value;
+                int64_t value1 = ambiguous_bases[(m * 15) + dict[smallest_canonical]];
+                uint8_t u8_value1 = value1;
+                dict[smallest_canonical] = u8_value1;
             }
         }
             // more Ns
@@ -341,12 +343,14 @@ robin_hood::unordered_map<uint64_t, uint64_t> rolling_kmer_bitvector(std::string
             // update value if kmer already existed
             //key not present in dictionary
             if (dict.find(smallest_canonical) == dict.end()) {
-                dict[smallest_canonical] = value;
+                uint8_t u8_value = value;
+                dict[smallest_canonical] = u8_value;
             }
             else {
                 // calculate offset of position in vector
                 int64_t value1 = ambiguous_bases[(value * 15) + dict[smallest_canonical]];
-                dict[smallest_canonical] = value1;
+                uint8_t u8_value1 = value1;
+                dict[smallest_canonical] = u8_value1;
             }
         }
     }
@@ -424,6 +428,20 @@ vec_dict_bits get_kmers(const std::vector< std::string>& fasta_path, const std::
                 }
             }
 
+////            normal printing:
+//            std::ofstream current_kmer_file;
+//            current_kmer_file.open(names[sample_idx] + ".skf");
+////            std::cout << names[sample_idx] << ".skf :" << split_kmers.size() << std::endl;
+//            std::stringstream bitstringstream;
+//
+//            for (const auto& x: split_kmers) {
+//                bitstringstream << x.first << " " << x.second << " ";
+//
+//            }
+//            current_kmer_file << bitstringstream.str();
+//            current_kmer_file.close();
+
+
             // creating output file
             std::ofstream os(names[sample_idx] + ".skf", std::ios::binary);
             // creating archive
@@ -433,12 +451,17 @@ vec_dict_bits get_kmers(const std::vector< std::string>& fasta_path, const std::
             MyBase cereal_split_kmers;
             cereal_split_kmers.cereal_dict = split_kmers;
             oarchive(cereal_split_kmers);
-//            {
-//                cereal::BinaryInputArchive iarchive(os);
-//                cereal_class getting_back;
-//                getting_back.cereal_dict;
-//                iarchive(getting_back);
-//            }
+//
+
+
+
+//            std::ifstream ins(names[sample_idx] + ".skf", std::ios::binary);
+//
+//            cereal::BinaryInputArchive iarchive(ins);
+//            MyBase getting_back;
+//            getting_back.cereal_dict;
+//            iarchive(getting_back);
+
 
 //                out_dict = getting_back;
 //            }

@@ -19,6 +19,8 @@ from Bio import SeqIO
 from docopt import docopt
 
 from .__init__ import __version__
+
+
 # def get_options():
 #     from docopt import docopt
 #     arguments = docopt(__doc__) #, version="ska version"+__version__)
@@ -38,11 +40,9 @@ def read_in_files(file_path):
 
 
 def main():
-
-
     args = docopt(__doc__, version="ska version=" + __version__)
 
-    paths, names = read_in_files("/Users/wachsmannj/Documents/test_SKA2/cluster_15.txt")
+    paths, names = read_in_files("/Users/wachsmannj/Documents/test_SKA2/integer_approach/cluster_1.txt")
 
     if args["--fasta"]:
         print("run ska fasta")
