@@ -15,8 +15,7 @@ PYBIND11_MODULE(ska_cpp, m) {
   m.doc() = "SKA functions";
 
   // Exported functions
-  m.def("run_ska", &run_ska, "Runs ska fasta",
-
+  m.def("run_ska_fasta", &run_ska_fasta, "Runs ska fasta",
         py::arg("path_strings"),
         py::arg("name_strings"),
         py::arg("kmer_length") = 7);
@@ -29,6 +28,10 @@ PYBIND11_MODULE(ska_cpp, m) {
   m.def("check_for_N", &check_for_N, "checks for Ns in sequence",
         py::arg("split"),
         py::arg("position"));
+  m.def("run_ska_align", &run_ska_align, "Runs ska align",
+        py::arg("skf_paths"),
+        py::arg("isolate_names"),
+        py::arg("kmerLength"));
   m.def("get_kmers", &get_kmers, "creates k-mers",
         py::arg("fasta_path"),
         py::arg("names"),

@@ -230,8 +230,7 @@ std::vector<int> check_for_N(std::string split, int pos){
 }
 
 
-robin_hood::unordered_map<uint64_t, uint64_t> rolling_kmer_bitvector(std::string& sequence, int k, robin_hood::unordered_map<uint64_t, uint64_t> dict) {
-//std::unordered_map<uint64_t, uint64_t> rolling_kmer_bitvector(std::string& sequence, int k, std::unordered_map<uint64_t, uint64_t> dict) {
+robin_hood::unordered_map<uint64_t, uint8_t> rolling_kmer_bitvector(std::string& sequence, int k, robin_hood::unordered_map<uint64_t, uint8_t> dict) {
     uint64_t kmer_mask = 0;
     for (int i = 0; i < k/2; i++) {
         kmer_mask = kmer_mask << 2;
@@ -373,12 +372,14 @@ int check_kmer_length(int length) {
 
 //TODO: robin_hood::unordered_node_map better than robin_hood::unordered_map?
 vec_dict_bits get_kmers(const std::vector< std::string>& fasta_path, const std::vector< std::string>& names, int kmer_length)
+//vec_dict get_kmers(const std::vector< std::string>& fasta_path, const std::vector< std::string>& names, int kmer_length)
 //std::vector<std::unordered_map<uint64_t, uint64_t>> get_kmers(const std::vector< std::string>& fasta_path, const std::vector< std::string>& names, int kmer_length)
 {
 //    progressbar bar1(fasta_path.size());
 //    std::cout << "Creating k-mer dictionary: " << std::endl;
     kmer_length = check_kmer_length(kmer_length);
     vec_dict_bits kmer_dicts;
+//    vec_dict kmer_dicts;
 //    std::vector<std::unordered_map<uint64_t, uint64_t>> kmer_dicts;
     kmer_dicts.resize(fasta_path.size());
 // read in fasta files with kseq.h
@@ -387,7 +388,7 @@ vec_dict_bits get_kmers(const std::vector< std::string>& fasta_path, const std::
     std::vector<std::runtime_error> errors;
 
 
-#pragma omp parallel for // num_threads(2) // #pragma omp parallel is for paralyzing this loops
+//#pragma omp parallel for // num_threads(2) // #pragma omp parallel is for paralyzing this loops
     for (int sample_idx = 0; sample_idx < fasta_path.size(); ++sample_idx) {
         #pragma omp critical
 //        bar1.update();
@@ -395,8 +396,8 @@ vec_dict_bits get_kmers(const std::vector< std::string>& fasta_path, const std::
             interrupt = true;
         } else {
             //#pragma omp critical
-            robin_hood::unordered_map<uint64_t, uint64_t> split_kmers;
-//            std::unordered_map<uint64_t, uint64_t> split_kmers;
+            robin_hood::unordered_map<uint64_t, uint8_t> split_kmers;
+//            robin_hood::unordered_map<std::string, char> split_kmers;
             gzFile fp;
             kseq_t *seq;
             int number_of_seqs = 0;
@@ -415,8 +416,6 @@ vec_dict_bits get_kmers(const std::vector< std::string>& fasta_path, const std::
 //              TODO: is contig dict updated or is dict only for contigs???
 
 //                split_kmers = rolling_kmer_iterators(current_contig, kmer_length, split_kmers);
-//                split_kmers = rolling_kmer_extract(current_contig, kmer_length, split_kmers);
-//                split_kmers = rolling_kmer_extract(current_contig, kmer_length, split_kmers);
                 split_kmers = rolling_kmer_bitvector(current_contig, kmer_length, split_kmers);
 //                std::cout << "This dict has size: " << split_kmers.size() << std::endl;
                 if (split_kmers.size() == 0) {
@@ -430,7 +429,7 @@ vec_dict_bits get_kmers(const std::vector< std::string>& fasta_path, const std::
 
 ////            normal printing:
 //            std::ofstream current_kmer_file;
-//            current_kmer_file.open(names[sample_idx] + ".skf");
+//            current_kmer_file.open("/Users/wachsmannj/Documents/test_SKA2/integer_approach/" + names[sample_idx] + ".skf");
 ////            std::cout << names[sample_idx] << ".skf :" << split_kmers.size() << std::endl;
 //            std::stringstream bitstringstream;
 //
@@ -440,20 +439,25 @@ vec_dict_bits get_kmers(const std::vector< std::string>& fasta_path, const std::
 //            }
 //            current_kmer_file << bitstringstream.str();
 //            current_kmer_file.close();
-
-
+//            auto end1 = std::chrono::steady_clock::now();
+//            std::chrono::duration<double> elapsed_seconds_kmers = end1-start;
+//            std::cout << "elapsed time: " << elapsed_seconds_kmers.count() << "s\n";
             // creating output file
-            std::ofstream os(names[sample_idx] + ".skf", std::ios::binary);
+            std::ofstream os("/Users/wachsmannj/Documents/test_SKA2/integer_approach/testing/" +names[sample_idx] + ".skf", std::ios::binary);
             // creating archive
 
             cereal::BinaryOutputArchive oarchive(os);
 
             MyBase cereal_split_kmers;
+
             cereal_split_kmers.cereal_dict = split_kmers;
             oarchive(cereal_split_kmers);
-//
 
 
+            auto end1 = std::chrono::steady_clock::now();
+            std::chrono::duration<double> elapsed_seconds1 = end1-start;
+//            std::cout << "elapsed time total: " << elapsed_seconds1.count() << "s\n";
+//            std::cout << elapsed_seconds1.count() << std::endl;
 
 //            std::ifstream ins(names[sample_idx] + ".skf", std::ios::binary);
 //
@@ -491,7 +495,7 @@ vec_dict_bits get_kmers(const std::vector< std::string>& fasta_path, const std::
 
     auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double> elapsed_seconds = end-start;
-//    std::cout << "elapsed time: " << elapsed_seconds.count() << "s\n";
+    std::cout << "elapsed time total: " << elapsed_seconds.count() << "s\n";
     std::cout << elapsed_seconds.count() << std::endl;
 //    std::cout << "Got k-mers! " << std::endl;
     return kmer_dicts;
@@ -507,20 +511,25 @@ std::unordered_map<uint64_t, uint64_t> change_type(robin_hood::unordered_map<uin
 }
 
 vec_dict_bits ska_fasta(const std::vector<std::string>& isolate_vector, const std::vector<std::string>& isolate_names, int kmerLength) {
-//std::vector<std::unordered_map<uint64_t, uint64_t>> ska_fasta(const std::vector<std::string>& isolate_vector, const std::vector<std::string>& isolate_names, int kmerLength) {
+//vec_dict ska_fasta(const std::vector<std::string>& isolate_vector, const std::vector<std::string>& isolate_names, int kmerLength) {
 
-// kmer_dicts is a vector of length n containing n dicts; each dict holds all the split k-mers of the current isolate
-    vec_dict_bits kmer_dicts = get_kmers(isolate_vector, isolate_names, kmerLength);
-//    std::vector<std::unordered_map<uint64_t, uint64_t>> kmer_dicts = get_kmers(isolate_vector, isolate_names, kmerLength);
-    // TODO: pass kmer_dicts as reference to not copy everything over all the time
-    return kmer_dicts;
+        //std::vector<std::unordered_map<uint64_t, uint64_t>> ska_fasta(const std::vector<std::string>& isolate_vector, const std::vector<std::string>& isolate_names, int kmerLength) {
+
+        // kmer_dicts is a vector of length n containing n dicts; each dict holds all the split k-mers of the current isolate
+        vec_dict_bits kmer_dicts = get_kmers(isolate_vector, isolate_names, kmerLength);
+//        vec_dict kmer_dicts = get_kmers(isolate_vector, isolate_names, kmerLength);
+
+    //    std::vector<std::unordered_map<uint64_t, uint64_t>> kmer_dicts = get_kmers(isolate_vector, isolate_names, kmerLength);
+        // TODO: pass kmer_dicts as reference to not copy everything over all the time
+        return kmer_dicts;
 }
 
 
-
-int run_ska(const std::vector<std::string>& isolate_paths, const std::vector<std::string>& isolate_names, int kmerLength) {
+int run_ska_fasta(const std::vector<std::string>& isolate_paths, const std::vector<std::string>& isolate_names, int kmerLength) {
 ////   from sketchlib: https://github.com/bacpop/pp-sketchlib/blob/master/src/api.cpp
 
     vec_dict_bits kmer_dicts = ska_fasta(isolate_paths, isolate_names, kmerLength);
+//    vec_dict kmer_dicts = ska_fasta(isolate_paths, isolate_names, kmerLength);
+
     return 0;
 }
