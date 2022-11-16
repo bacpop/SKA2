@@ -18,6 +18,9 @@
 #include <cereal/archives/binary.hpp>
 #include "progressbar.hpp"
 #include "cereal/include/cereal/archives/binary.hpp"
+#include "cereal/include/cereal/types/vector.hpp"
+#include "cereal/include/cereal/types/string.hpp"
+//#include <boost/dynamic_bitset.hpp>
 
 //using namespace boost::filesystem;
 KSEQ_INIT(gzFile, gzread)
@@ -76,6 +79,41 @@ static const uint64_t look_up_table[256] = {
         seedX, seedX, seedX, seedX, seedX, seedX, seedX, seedX, // 240..247
         seedX, seedX, seedX, seedX, seedX, seedX, seedX, seedX  // 248..255
 };
+
+std::string print_kmers(int kmer_length, uint64_t kmer)
+{
+//        boost::dynamic_bitset<> kmer(kmer_length-1);
+        std::string key = std::bitset<4>(kmer).to_string();
+        std::cout << "key: " << key << std::endl;
+        std::string current_kmer("");
+        for (int i = 0; i < (kmer_length-1)*2; i+=2)
+        {
+//            std::cout << i << std::endl;
+            std::string current_base = key.substr(i, 2);
+            char base;
+
+            if (current_base == "00")
+            {
+                base = 'A';
+            }
+            else if (current_base == "01")
+            {
+                base = 'C';
+            }
+            else if (current_base == "10")
+            {
+                base = 'G';
+            }
+            else if (current_base == "11") {
+                base = 'T';
+            }
+            std::cout << base;
+            current_kmer.push_back(base);
+        }
+        std::cout << "\n";
+        return current_kmer;
+}
+
 
 uint64_t to_binary(std::string& current_kmer, int length) {
     // convert k-mer to bitvector
@@ -230,13 +268,14 @@ std::vector<int> check_for_N(std::string split, int pos){
 }
 
 
+
 robin_hood::unordered_map<uint64_t, uint8_t> rolling_kmer_bitvector(std::string& sequence, int k, robin_hood::unordered_map<uint64_t, uint8_t> dict) {
     uint64_t kmer_mask = 0;
     for (int i = 0; i < k/2; i++) {
         kmer_mask = kmer_mask << 2;
         kmer_mask += 3;
-
     }
+    std::cout << "Checkpoint 1!" << std::endl;
     int pos = 0;
     bool new_base_N = true;
     uint64_t new_base;
@@ -250,8 +289,10 @@ robin_hood::unordered_map<uint64_t, uint8_t> rolling_kmer_bitvector(std::string&
     uint64_t mask = 3;
 
     while (new_base_N && pos < sequence.length()) {
+        std::cout << "Checkpoint 2!" << std::endl;
         check = check_for_N(current_kmer, pos);
         // no mpre Ns
+        std::cout << "0!, " << std::endl;
         if (check[0] == 0) {
             pos = check[1]; //9
             new_base = look_up_table[sequence[k + pos]] ;
@@ -259,7 +300,7 @@ robin_hood::unordered_map<uint64_t, uint8_t> rolling_kmer_bitvector(std::string&
             // convert to binary
             std::string split1 = current_kmer.substr(0, k/2);
             std::string split2 = current_kmer.substr(k/2 + 1, k/2);
-
+            std::cout << "1!, " << std::endl;
             b1 = to_binary(split1, k/2);
             b2 = to_binary(split2, k/2);
 
@@ -267,7 +308,7 @@ robin_hood::unordered_map<uint64_t, uint8_t> rolling_kmer_bitvector(std::string&
             m = look_up_table[sequence[sub_kmer_length]];
             smallest_canonical = ReverseComp64(bint, k-1);
             int64_t value = m;
-
+            std::cout << "2!, " << std::endl;
             if (smallest_canonical < bint) {
                 value = ~m;
                 value = value & mask;
@@ -275,32 +316,46 @@ robin_hood::unordered_map<uint64_t, uint8_t> rolling_kmer_bitvector(std::string&
             else {
                 smallest_canonical = bint;
             }
+            std::cout << "3!, " << std::endl;
             // update value if kmer already existed
             //key not present in dictionary
             uint8_t mid_val = static_cast<uint8_t>(value);
             if (dict.find(smallest_canonical) == dict.end()) {
                 uint8_t u8_value1 = value;
+                std::cout << "smallest canonical1: ";
+                print_kmers(k, smallest_canonical);
                 dict[smallest_canonical] = u8_value1;
+                std::cout << "blub0!, " << std::endl;
             }
             else {
                 // calculate offset of position in vector
                 int64_t value1 = ambiguous_bases[(m * 15) + dict[smallest_canonical]];
                 uint8_t u8_value1 = value1;
+                std::cout << "smallest canonical2: ";
+                print_kmers(k, smallest_canonical);
                 dict[smallest_canonical] = u8_value1;
+                std::cout << "blub1!, " << std::endl;
             }
+            std::cout << "4!, " << std::endl;
         }
+
             // more Ns
         else {
             pos = check[1];
             current_kmer = sequence.substr(pos, k);
             new_base_N = true;
         }
+        std::cout << "blub2!, " << std::endl;
     }
 //TODO: does N still = 4 here??
+    std::cout << "blub3!, " << std::endl;
     new_base = look_up_table[sequence[k + pos]]; //should be either 00,01,10,11
-    for (int new_base_pos = pos; new_base_pos < sequence.size() - k + 1; ++new_base_pos){
+    for (int new_base_pos = pos; new_base_pos < sequence.size() - k; ++new_base_pos){
+        std::cout << "Checkpoint 3!, " << sequence.size() << std::endl;
+        std::cout << "new_base_pos: " << new_base_pos << std::endl;
         new_base = look_up_table[sequence[k + new_base_pos]];
-
+        std::string new_base_print = std::bitset<4>(new_base).to_string();
+        std::cout << "new_base: " << new_base << ", " << new_base_print << ", " << k + new_base_pos << std::endl;
         if(new_base == 14) {
             new_base_N = true;
             new_base_pos = new_base_pos + k + 1;
@@ -343,15 +398,23 @@ robin_hood::unordered_map<uint64_t, uint8_t> rolling_kmer_bitvector(std::string&
             //key not present in dictionary
             if (dict.find(smallest_canonical) == dict.end()) {
                 uint8_t u8_value = value;
+                std::cout << "smallest canonical3: ";
+                print_kmers(k, smallest_canonical);
                 dict[smallest_canonical] = u8_value;
             }
             else {
                 // calculate offset of position in vector
                 int64_t value1 = ambiguous_bases[(value * 15) + dict[smallest_canonical]];
                 uint8_t u8_value1 = value1;
+                std::cout << "smallest canonical4: ";
+                print_kmers(k, smallest_canonical);
                 dict[smallest_canonical] = u8_value1;
             }
         }
+    }
+    std::cout << "Printing dict: " << std::endl;
+    for (auto const &pair: dict) {
+        std::cout << "{" << pair.first << ": " << pair.second << "}\n";
     }
     return dict;
 }
@@ -432,46 +495,80 @@ vec_dict_bits get_kmers(const std::vector< std::string>& fasta_path, const std::
 //            current_kmer_file.open("/Users/wachsmannj/Documents/test_SKA2/integer_approach/" + names[sample_idx] + ".skf");
 ////            std::cout << names[sample_idx] << ".skf :" << split_kmers.size() << std::endl;
 //            std::stringstream bitstringstream;
-//
 //            for (const auto& x: split_kmers) {
 //                bitstringstream << x.first << " " << x.second << " ";
-//
 //            }
 //            current_kmer_file << bitstringstream.str();
 //            current_kmer_file.close();
 //            auto end1 = std::chrono::steady_clock::now();
 //            std::chrono::duration<double> elapsed_seconds_kmers = end1-start;
 //            std::cout << "elapsed time: " << elapsed_seconds_kmers.count() << "s\n";
-            // creating output file
-            std::ofstream os("/Users/wachsmannj/Documents/test_SKA2/integer_approach/testing/" +names[sample_idx] + ".skf", std::ios::binary);
-            // creating archive
 
-            cereal::BinaryOutputArchive oarchive(os);
+//            // creating output file with cereal dictionary
+//            std::ofstream os("/Users/wachsmannj/Documents/test_SKA2/integer_approach/testing/" +names[sample_idx] + ".skf", std::ios::binary);
+//            cereal::BinaryOutputArchive oarchive(os);
+//            MyBase cereal_split_kmers;
+//            cereal_split_kmers.cereal_dict = split_kmers;
+//            oarchive(cereal_split_kmers);
+//            auto end1 = std::chrono::steady_clock::now();
+//            std::chrono::duration<double> elapsed_seconds1 = end1-start;
 
-            MyBase cereal_split_kmers;
 
-            cereal_split_kmers.cereal_dict = split_kmers;
-            oarchive(cereal_split_kmers);
+            std::ofstream os1("");
+            std::ofstream mystringfile;
+            mystringfile.open ("/Users/wachsmannj/Documents/test_SKA2/integer_approach/small_test/" +names[sample_idx] + "_string.skf");
 
 
-            auto end1 = std::chrono::steady_clock::now();
-            std::chrono::duration<double> elapsed_seconds1 = end1-start;
-//            std::cout << "elapsed time total: " << elapsed_seconds1.count() << "s\n";
-//            std::cout << elapsed_seconds1.count() << std::endl;
+//            std::string binary = std::bitset<8>(n).to_string();
+            std::vector<int> test_vector;
+            for (auto& it: split_kmers) {
+                test_vector.push_back(it.first);
+                test_vector.push_back(it.second);
+                std::string key = std::bitset<60>(it.first).to_string();
+                std::string value = std::bitset<6>(it.second).to_string();
 
-//            std::ifstream ins(names[sample_idx] + ".skf", std::ios::binary);
+//              change bitsets to string sequences
+//                std::string test = std::bitset<12>(205).to_string();
+//                for (int i = 0; i < (kmer_length-1)*2; i+=2)
+//                {
+//                    std::string current_base = key.substr(i, 2);
+//                    char base;
 //
-//            cereal::BinaryInputArchive iarchive(ins);
-//            MyBase getting_back;
-//            getting_back.cereal_dict;
-//            iarchive(getting_back);
+//                    if (current_base == "00")
+//                    {
+//                        base = 'A';
+//                    }
+//                    else if (current_base == "01")
+//                    {
+//                        base = 'C';
+//                    }
+//                    else if (current_base == "10")
+//                    {
+//                        base = 'G';
+//                    }
+//                    else if (current_base == "11") {
+//                        base = 'T';
+//                    }
+//                    std::cout << base;
+//                }
+//                std::cout << "\n";
 
 
-//                out_dict = getting_back;
-//            }
-//            for (const auto& iterator: out_dict) {
-//                std::cout << iterator.first << ": " << iterator.second << std::endl;
-//            }
+                mystringfile << key << ": " << value << " is " << it.first << " and " << it.second << "\n";
+
+            }
+
+
+
+
+//            binary printing as string
+
+
+//            cereal printing in vector format
+            std::cout << "test_vector size: " << test_vector.size() << std::endl;
+            std::ofstream os("/Users/wachsmannj/Documents/test_SKA2/integer_approach/small_test/" +names[sample_idx] + ".skf", std::ios::binary);
+            cereal::BinaryOutputArchive oarchive(os);
+            oarchive(test_vector);
 
             if (!interrupt) {
                 // TODO: use std::move here rather than copy?
@@ -501,11 +598,21 @@ vec_dict_bits get_kmers(const std::vector< std::string>& fasta_path, const std::
     return kmer_dicts;
 }
 
+
+
 //TODO: map instead of unordered map
-std::unordered_map<uint64_t, uint64_t> change_type(robin_hood::unordered_map<uint64_t, uint64_t> rh_dict) {
-    std::unordered_map<uint64_t, uint64_t> basic_map;
+std::unordered_map<uint64_t, uint8_t> change_type(robin_hood::unordered_map<uint64_t, uint8_t> rh_dict) {
+    std::unordered_map<uint64_t, uint8_t> basic_map;
     for (const auto& x: rh_dict) {
          basic_map[x.first] = x.second;
+    }
+    return basic_map;
+}
+
+robin_hood::unordered_map<uint64_t, uint8_t> change_type2(std::unordered_map<uint64_t, uint8_t> normal_dict) {
+    robin_hood::unordered_map<uint64_t, uint8_t> basic_map;
+    for (const auto& x: normal_dict) {
+        basic_map[x.first] = x.second;
     }
     return basic_map;
 }
@@ -533,3 +640,24 @@ int run_ska_fasta(const std::vector<std::string>& isolate_paths, const std::vect
 
     return 0;
 }
+
+
+std::vector<std::string> testing_run_ska(std::string s, int k)
+{
+    robin_hood::unordered_map<uint64_t, uint8_t> in_dict;
+    robin_hood::unordered_map<uint64_t, uint8_t> out_dict;
+    std::vector<std::string> kmer_vecotr;
+    out_dict = rolling_kmer_bitvector(s, k, in_dict);
+
+//    change bit ints to string and char and print to vector
+    for (auto const &pair: out_dict)
+    {
+        kmer_vecotr.push_back(print_kmers(k, pair.first));
+    }
+
+//    sort vector
+    std::sort(kmer_vecotr.begin(),kmer_vecotr.end());
+
+    return kmer_vecotr;
+}
+

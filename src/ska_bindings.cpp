@@ -28,6 +28,17 @@ PYBIND11_MODULE(ska_cpp, m) {
   m.def("check_for_N", &check_for_N, "checks for Ns in sequence",
         py::arg("split"),
         py::arg("position"));
+  m.def("rolling_kmer_bitvector", &rolling_kmer_bitvector, "created integer k-mers",
+        py::arg("sequence"),
+        py::arg("kmer"),
+        py::arg("dictionary"));
+  m.def("change_type", &change_type, "change type of dict for testing",
+        py::arg("dictionary"));
+  m.def("change_type2", &change_type2, "change type of dict for testing",
+        py::arg("dictionary"));
+  m.def("testing_run_ska", &testing_run_ska, "test ska fasta",
+        py::arg("sequence"),
+        py::arg("kmer_length"));
   m.def("run_ska_align", &run_ska_align, "Runs ska align",
         py::arg("skf_paths"),
         py::arg("isolate_names"),
@@ -37,7 +48,8 @@ PYBIND11_MODULE(ska_cpp, m) {
         py::arg("names"),
         py::arg("kmer_length"));
 
-//TODO: https://pybind11.readthedocs.io/en/stable/faq.html#how-can-i-properly-handle-ctrl-c-in-long-running-functions
+
+  //TODO: https://pybind11.readthedocs.io/en/stable/faq.html#how-can-i-properly-handle-ctrl-c-in-long-running-functions
 
 //  m.def("run_ska_align", &run_ska_align, "Runs ska fasta and align",
 //        py::arg("fasta_strings"),

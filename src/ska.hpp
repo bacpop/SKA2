@@ -25,7 +25,7 @@ std::vector<std::bitset<4>> create_bitvector_value(std::vector<char> bases);
 
 uint64_t to_binary(std::string& current_kmer, int length);
 
-robin_hood::unordered_map<uint64_t, uint8_t> rolling_kmer_bitvector(std::string& sequence, int k, robin_hood::unordered_map<uint64_t, uint64_t> dict);
+robin_hood::unordered_map<uint64_t, uint8_t> rolling_kmer_bitvector(std::string& sequence, int k, robin_hood::unordered_map<uint64_t, uint8_t> dict);
 
 robin_hood::unordered_map<std::string, char> old_kmer_approach(std::string sequence, int k, robin_hood::unordered_map<std::string, char> dict);
 
@@ -38,7 +38,14 @@ vec_dict_bits get_kmers(const std::vector< std::string>& fasta_path, const std::
 
 //std::vector<std::unordered_map<uint64_t, uint64_t>> get_kmers(const std::vector< std::string>& fasta_path, const std::vector< std::string>& names, int kmer_length);
 
+std::unordered_map<uint64_t, uint8_t> change_type(robin_hood::unordered_map<uint64_t, uint8_t> rh_dict);
+
+robin_hood::unordered_map<uint64_t, uint8_t> change_type2(std::unordered_map<uint64_t, uint8_t> normal_dict);
 // cereal needs to know which data members to serialize in your classes. Let it know by implementing a serialize method in your class
+
+std::vector<std::string> testing_run_ska(std::string s, int k);
+
+
 
 struct MyBase
 {

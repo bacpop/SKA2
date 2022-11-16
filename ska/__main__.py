@@ -44,10 +44,12 @@ def main():
     args = docopt(__doc__, version="ska version=" + __version__)
     compression = [False, 0]
     # compression = [True, -1]
-    paths, names = read_in_files("/Users/wachsmannj/Documents/test_SKA2/integer_approach/cluster_1.txt")
+    #
+
 
     if args["--fasta"]:
         print("run ska fasta")
+        paths, names = read_in_files("/Users/wachsmannj/Documents/test_SKA2/integer_approach/small_test/small_test_cluster.txt")
         # for i in range (0, 10):
         ska_cpp.run_ska_fasta(paths, names, 31)
         if compression[0]:
@@ -59,9 +61,8 @@ def main():
                     subprocess.run(["lz4", file, "-9"])
     elif args["--align"]:
         print("run ska align")
-        files = ["/Users/wachsmannj/Documents/test_SKA2/integer_approach/7553_4#18.skf"]
-        names = ["7553_4#18.skf"]
-        ska_cpp.run_ska_align(files, names, 31)
+        paths, names = read_in_files("/Users/wachsmannj/Documents/test_SKA2/integer_approach/small_test/small_test_cluster_skf.txt")
+        ska_cpp.run_ska_align(paths, names, 31)
         # ska_cpp.ska_align(args["file-list"])
         # ska_cpp.ska_align(paths, names, 31)
     elif args["--map"]:
