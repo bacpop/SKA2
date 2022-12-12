@@ -18,7 +18,8 @@ PYBIND11_MODULE(ska_cpp, m) {
   m.def("run_ska_fasta", &run_ska_fasta, "Runs ska fasta",
         py::arg("path_strings"),
         py::arg("name_strings"),
-        py::arg("kmer_length") = 7);
+        py::arg("kmer_length"),
+        py::arg("output"));
   m.def("to_binary", &to_binary, "Turns string into binary representation",
         py::arg("string"),
         py::arg("kmer_length"));
@@ -42,13 +43,22 @@ PYBIND11_MODULE(ska_cpp, m) {
   m.def("run_ska_align", &run_ska_align, "Runs ska align",
         py::arg("skf_paths"),
         py::arg("isolate_names"),
-        py::arg("kmerLength"));
+        py::arg("kmerLength"),
+        py::arg("output"),
+        py::arg("cluster_name"));
   m.def("get_kmers", &get_kmers, "creates k-mers",
         py::arg("fasta_path"),
         py::arg("names"),
-        py::arg("kmer_length"));
-
-
+        py::arg("kmer_length"),
+        py::arg("output"));
+  m.def("testing_run_ska_without_reverse_complement", &testing_run_ska_without_reverse_complement, "test_kmers",
+        py::arg("s"),
+        py::arg("k"),
+        py::arg("path"),
+        py::arg("file_name"));
+  m.def("testing_run_ska_align_without_reverse_complement", &testing_run_ska_align_without_reverse_complement, "test_align",
+        py::arg("skf_files"),
+        py::arg("names"));
   //TODO: https://pybind11.readthedocs.io/en/stable/faq.html#how-can-i-properly-handle-ctrl-c-in-long-running-functions
 
 //  m.def("run_ska_align", &run_ska_align, "Runs ska fasta and align",

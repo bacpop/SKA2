@@ -1,33 +1,28 @@
-"""ska: split k-mer alignment
+"""
+SKA2: Split k-mer Analysis (Version 2.0.0)
 
 Usage:
-  ska --fasta <fasta>
-  ska --align <align>
-  ska --map <map>
+  ska fasta -i <in> -k <kmer> [-o <output> | -t <threads> | -c <value>]
+  ska align -i <in> -k <kmer> [-o <output> | -t <threads> | -c <value>]
+  ska map -i <in> -k <kmer> [-o <output> | -t <threads> | -c <value>]
+  ska (-h | --help)
+  ska --version
 
 Options:
-  -h --help         Show this help.
+  -h --help         Show this screen.
   --version         Show version.
-  -kmer_size=<int>  Size of k-mers; needs to be off (default: 7)
-  -o <output>       Output prefix.
-
+  -k --kmer         Length of kmers
+  -i --input        Input assembly files
+  -o --output       Output directory to save skf/alignment [default: .]
+  -t --threads      Amount of threads to use
+  --compression     Chose a compression technique for the skf [default: False]
 """
 
-import os, sys, re
+import sys, os
 import ska_cpp
 import subprocess
-from Bio import SeqIO
 from docopt import docopt
-
 from .__init__ import __version__
-
-
-# def get_options():
-#     from docopt import docopt
-#     arguments = docopt(__doc__) #, version="ska version"+__version__)
-#     # arguments = docopt(__doc__, version="ska fasta" + ska_cpp.run_ska)
-#     # TODO Check options here
-#     return arguments
 
 
 def read_in_files(file_path):
@@ -41,33 +36,50 @@ def read_in_files(file_path):
 
 
 def main():
-    args = docopt(__doc__, version="ska version=" + __version__)
-    compression = [False, 0]
-    # compression = [True, -1]
-    #
-
-
-    if args["--fasta"]:
-        print("run ska fasta")
-        paths, names = read_in_files("/Users/wachsmannj/Documents/test_SKA2/integer_approach/small_test/small_test_cluster.txt")
-        # for i in range (0, 10):
-        ska_cpp.run_ska_fasta(paths, names, 31)
+    args = docopt(__doc__, version="ska version = " + __version__)
+    # print(args)
+    k = int(args["<kmer>"])
+    output_directory = args["<output>"]
+    in_files = args["<in>"]
+    compression = args["-c"]
+    if compression:
+        compression = [True, -1]
+    else:
+        compression = [False, 0]
+    if args["fasta"]:
+        print("run ska fasta with k-mer length", k)
+        cluster = in_files.split('/')
+        cluster = cluster[len(cluster)-1]
+        cluster = cluster.split('.')[0]
+        paths, names = read_in_files(in_files)
+        ska_cpp.run_ska_fasta(paths, names, k, output_directory)
         if compression[0]:
             for i in names:
-                file = "/Users/wachsmannj/Documents/test_SKA2/integer_approach/testing/" + i + ".skf"
+                file = output_directory + i + ".skf"
                 if compression[1] == -1:
                     subprocess.run(["lz4", file, "-1"])
                 else:
                     subprocess.run(["lz4", file, "-9"])
-    elif args["--align"]:
-        print("run ska align")
-        paths, names = read_in_files("/Users/wachsmannj/Documents/test_SKA2/integer_approach/small_test/small_test_cluster_skf.txt")
-        ska_cpp.run_ska_align(paths, names, 31)
-        # ska_cpp.ska_align(args["file-list"])
-        # ska_cpp.ska_align(paths, names, 31)
-    elif args["--map"]:
+        # create file to continue with align
+        # output_file = cluster + ".skf"
+        f = open(os.path.join(os.path.dirname(in_files), cluster + ".skf"), "w")
+        print(os.path.join(os.path.dirname(in_files), cluster + ".skf"))
+        for i in range(0, len(paths)):
+            path = os.path.join(output_directory, names[i] + ".skf")
+            line = names[i] + "\t" + path + "\n"
+            f.write(line)
+            # print(names[i], path)
+        f.close()
+    elif args["align"]:
+        print("run ska align with k-mer length", k)
+        paths, names = read_in_files(in_files)
+        cluster = os.path.basename(in_files).replace(".skf", "")
+        ska_cpp.run_ska_align(paths, names, k, output_directory, cluster)
+
+
+    elif args["map"]:
         print("run ska map")
-        # ska_cpp.ska_map(args["file-list"])
+        # ska_cpp.run_ska_map(paths, names, k, output_directory)
     else:
         print("Option error!")
         sys.exit(1)

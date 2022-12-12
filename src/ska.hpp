@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef SKA_H
-#define SKA_H
+//#ifndef SKA_H
+//#define SKA_H
 
 #include <vector>
 #include <string>
@@ -15,8 +15,8 @@ typedef std::vector<robin_hood::unordered_map<std::string, char>> vec_dict;
 //typedef std::vector<robin_hood::unordered_map<uint64_t, uint64_t>> vec_dict_bits;
 typedef std::vector<robin_hood::unordered_map<uint64_t, uint8_t>> vec_dict_bits;
 
-int run_ska_fasta(const std::vector<std::string>& isolate_paths, const std::vector<std::string>& isolate_names,int kmerLength);
-int run_ska_align(const std::vector<std::string>& skf_paths, const std::vector<std::string>& isolate_names, int kmerLength);
+int run_ska_fasta(const std::vector<std::string>& isolate_paths, const std::vector<std::string>& isolate_names,int kmerLength, std::string output_directory);
+void run_ska_align(const std::vector<std::string>& skf_paths, const std::vector<std::string>& isolate_names, int kmerLength, std::string output_directory, std::string cluster_name);
 
 
 robin_hood::unordered_map<std::string, std::vector<char>> create_one_large_dictionary(vec_dict& kmer_dicts, int kmerLength);
@@ -33,7 +33,7 @@ uint64_t ReverseComp64(const uint64_t mer, uint8_t kmerSize);
 
 std::vector<int> check_for_N(std::string split, int pos);
 
-vec_dict_bits get_kmers(const std::vector< std::string>& fasta_path, const std::vector< std::string>& names, int kmer_length);
+vec_dict_bits get_kmers(const std::vector< std::string>& fasta_path, const std::vector< std::string>& names, int kmer_length, std::string output_directory);
 //vec_dict get_kmers(const std::vector< std::string>& fasta_path, const std::vector< std::string>& names, int kmer_length);
 
 //std::vector<std::unordered_map<uint64_t, uint64_t>> get_kmers(const std::vector< std::string>& fasta_path, const std::vector< std::string>& names, int kmer_length);
@@ -45,29 +45,30 @@ robin_hood::unordered_map<uint64_t, uint8_t> change_type2(std::unordered_map<uin
 
 std::vector<std::string> testing_run_ska(std::string s, int k);
 
+void testing_run_ska_without_reverse_complement(std::vector<std::string> seqs, int k, std::string path, std::string file_name);
+void testing_run_ska_align_without_reverse_complement(std::vector<std::string> skf_paths, std::vector<std::string> isolate_names);
+//
+//struct MyBase
+//{
+//    robin_hood::unordered_map<uint64_t, uint8_t> cereal_dict;
+//
+//    template <class Archive>
+//    void serialize( Archive & ar )
+//    {
+//        ar(cereal_dict);
+//    }
+//};
+//
+//struct MyDerived : MyBase
+//{
+//    template <class Archive>
+//    void load( Archive & )
+//    { }
+//
+//    template <class Archive>
+//    void save( Archive & ) const
+//    { }
+//};
+//
 
-
-struct MyBase
-{
-    robin_hood::unordered_map<uint64_t, uint8_t> cereal_dict;
-
-    template <class Archive>
-    void serialize( Archive & ar )
-    {
-        ar(cereal_dict);
-    }
-};
-
-struct MyDerived : MyBase
-{
-    template <class Archive>
-    void load( Archive & )
-    { }
-
-    template <class Archive>
-    void save( Archive & ) const
-    { }
-};
-
-
-#endif
+//#endif
