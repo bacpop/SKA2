@@ -7,16 +7,13 @@
 #include <fstream>
 #include <chrono>
 #include "robin_hood.h"
-#include <cereal/archives/binary.hpp>
+//#include <cereal/archives/binary.hpp>
 #include "progressbar.hpp"
 #include "cereal/include/cereal/archives/binary.hpp"
 #include "cereal/include/cereal/types/vector.hpp"
 #include "cereal/include/cereal/types/string.hpp"
 #include "eigen/Eigen/Eigen"
 #include "ska.hpp"
-#include <eigen/Eigen/StdVector>
-#include <eigen/Eigen/Dense>
-#include <eigen/Eigen/Core>
 
 static const char look_up_table2[16] = {'A','C', 'G', 'T', 'M', 'R', 'W', 'S', //
                                          'Y', 'K', 'V', 'H', 'D', 'B', 'N', 'X'// }

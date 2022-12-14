@@ -459,6 +459,7 @@ vec_dict_bits get_kmers(const std::vector< std::string>& fasta_path, const std::
     bool interrupt = false;
     std::vector<std::runtime_error> errors;
 
+    std::cout << "fasta_path: " << fasta_path.size() << " names: " << names.size() << " and " << output_directory << std::endl;
 //#pragma omp parallel for // num_threads(2) // #pragma omp parallel is for paralyzing this loops
     for (int sample_idx = 0; sample_idx < fasta_path.size(); ++sample_idx)
     {
