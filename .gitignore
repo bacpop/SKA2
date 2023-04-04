@@ -144,3 +144,6 @@ ENV/
 .mypy_cache/
 
 \.vscode/
+
+# clion ide
+.idea

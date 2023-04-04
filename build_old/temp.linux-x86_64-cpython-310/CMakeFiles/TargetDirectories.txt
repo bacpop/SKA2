@@ -1,0 +1,3 @@
+/home/johanna/SKA2/build/temp.linux-x86_64-cpython-310/CMakeFiles/ska_cpp.dir
+/home/johanna/SKA2/build/temp.linux-x86_64-cpython-310/CMakeFiles/edit_cache.dir
+/home/johanna/SKA2/build/temp.linux-x86_64-cpython-310/CMakeFiles/rebuild_cache.dir

@@ -1,0 +1,5 @@
+# ninja log v5
+341	377	1663860004654397587	ska_debug	9f174d0aa83d85d0
+1	247	1663858801378336764	CMakeFiles/ska_debug.dir/src/main.cpp.o	737fe9ac40df50d2
+2	407	1663858769313523091	CMakeFiles/ska_debug.dir/src/ska_align.cpp.o	fff4ebfb35702899
+0	554	1663858200355536399	CMakeFiles/ska_cpp.dir/src/ska_align.cpp.o	2186181842ef8d48

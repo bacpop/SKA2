@@ -10,9 +10,9 @@ set(CMAKE_OSX_ARCHITECTURES "x86_64")
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mcpu=apple-m1")
 
 # gcc: Add openmp
-IF(CMAKE_COMPILER_IS_GNUCC OR "$ENV{SKETCHLIB_INSTALL}" STREQUAL "conda")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
-ENDIF()
+#IF(CMAKE_COMPILER_IS_GNUCC OR "$ENV{SKETCHLIB_INSTALL}" STREQUAL "conda")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
+#ENDIF()
 set(CMAKE_CXX_FLAGS_RELEASE "-O2 -g")
 # Add -O0 to remove optimizations when using debug
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
@@ -44,7 +44,7 @@ execute_process(COMMAND pybind11-config --cmakedir OUTPUT_STRIP_TRAILING_WHITESP
 find_package(pybind11 2.6 CONFIG REQUIRED)
 
 # Define python library target
-add_library("${TARGET_NAME}" MODULE)
+add_library("${TARGET_NAME}" MODULE src/old_code.cpp)
 
 # Compile CPU library
 target_sources("${TARGET_NAME}" PRIVATE
